@@ -1,0 +1,150 @@
+
+.settings-panel {
+    position: absolute;
+    top: 15px;
+    left: 15px;
+    z-index: 100;
+    width: 260px;
+    max-height: calc(100vh - 40px);
+    overflow-y: auto;
+    background: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 12px;
+    padding: 16px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+    font-family: sans-serif;
+    transition: all 0.3s ease;
+}
+
+.settings-panel h3 {
+    margin: 0 0 12px 0;
+    font-size: 16px;
+    color: #1a1a1a;
+    font-weight: 600;
+}
+
+.settings-panel h4 {
+    margin: 0 0 8px 0;
+    font-size: 13px;
+    color: #666;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.section {
+    margin-bottom: 16px;
+}
+
+.settings-panel hr {
+    border: 0;
+    border-top: 1px solid rgba(0, 0, 0, 0.08);
+    margin: 12px 0;
+}
+
+/* Форма и инпуты */
+.settings-panel input, 
+.settings-panel select {
+    width: 100%;
+    margin-bottom: 8px;
+    padding: 8px 10px;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    border-radius: 6px;
+    background: white;
+    font-size: 14px;
+    box-sizing: border-box;
+    outline: none;
+    transition: border-color 0.2s;
+}
+
+.settings-panel input:focus {
+    border-color: #007bff;
+}
+
+.coords {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 8px;
+}
+
+.coord-input {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.coord-input label {
+    font-size: 10px;
+    color: #999;
+    margin-bottom: 2px;
+    text-transform: uppercase;
+}
+
+.coord-input input {
+    margin-bottom: 0;
+    font-size: 12px;
+}
+
+/* Кнопки */
+.settings-panel button {
+    width: 100%;
+    padding: 10px;
+    border: none;
+    border-radius: 6px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.1s;
+    margin-top: 4px;
+}
+
+.settings-panel button:active {
+    transform: scale(0.98);
+}
+
+.settings-panel button[type="submit"] {
+    background: #007bff;
+    color: white;
+}
+
+.settings-panel button.update-btn {
+    background: #28a745;
+}
+
+.settings-panel button.update-btn:hover{
+    background: #24973f;
+}
+
+.settings-panel .cancel-btn {
+    background: #f0f0f0;
+    color: #666;
+    margin-top: 8px;
+}
+
+.delete-btn{
+    background: #a72c28;
+    color: #f0f0f0;
+}
+
+/* Стили для чекбокса/переключателя */
+.switch {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    color: #444;
+    cursor: pointer;
+}
+
+.delete-btn {
+    background: #dc3545 !important;
+    color: white;
+}
+.delete-btn:hover { background: #c82333 !important; }
+
+.import-btn {
+    background: #6f42c1 !important;
+    color: white;
+    margin-top: 5px;
+}
+.import-btn:hover { background: #59359a !important; }

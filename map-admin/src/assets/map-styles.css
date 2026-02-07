@@ -1,0 +1,35 @@
+.map-wrap {
+    position: relative;
+    width: 100%;
+    height: 100vh;
+    overflow: hidden;
+}
+
+.map-container {
+    width: 100%;
+    height: 100%;
+}
+
+/* Принудительный дефолтный курсор на холсте карты */
+.maplibregl-canvas-container.maplibregl-interactive canvas {
+    cursor: default !important;
+}
+
+/* Стилизация Popups для соответствия дизайну панели */
+.maplibregl-popup-content {
+    border-radius: 8px !important;
+    padding: 12px !important;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.15) !important;
+    font-family: sans-serif;
+}
+
+.maplibregl-popup-close-button {
+    font-size: 16px;
+    padding: 4px 8px;
+    color: #999;
+}
+
+/* Убираем "кулак" при перетаскивании маркеров */
+.maplibregl-marker {
+    cursor: pointer;
+}
