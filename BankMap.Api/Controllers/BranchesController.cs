@@ -8,6 +8,7 @@ using CsvHelper;
 using CsvHelper.Configuration;
 using System.Globalization;
 
+//Controllers define API endpoints, use context for SQL queries
 namespace BankMap.Api.Controllers
 {
     [Route("api/[controller]")]

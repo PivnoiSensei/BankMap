@@ -1,5 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
-
+//This code defines schema of BankBranch table in DB
 namespace BankMap.Api.Models
 {
     public class BankBranch
