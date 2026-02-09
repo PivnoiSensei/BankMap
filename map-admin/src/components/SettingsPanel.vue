@@ -14,6 +14,7 @@ const currentBranch = ref<Partial<Branch>>({
     status: 'Active'
 });
 
+//Fill settings form with selected branch data
 watch(() => branchStore.selectedBranch, (selected) => {
     if (selected) {
         currentBranch.value = { ...selected };
@@ -30,10 +31,10 @@ const resetForm = () => {
 };
 
 const submitForm = async () => {
-    if (isEditing.value && currentBranch.value.id) {
+    if (isEditing.value && currentBranch.value.id) { //Update
         const success = await branchStore.updateBranch(currentBranch.value as Branch);
         if (success) resetForm();
-    } else {
+    } else { //Create
         const branchToSave: Omit<Branch, 'id'> = {
             name: currentBranch.value.name || '',
             address: currentBranch.value.address || '',
@@ -64,7 +65,7 @@ const handleCsvUpload = async (event: Event) => {
         } else {
             alert('Помилка при завантаженні CSV.');
         }
-        if (fileInput.value) fileInput.value.value = ''; // Скидання інпуту
+        if (fileInput.value) fileInput.value.value = '';
     }
 }
 </script>

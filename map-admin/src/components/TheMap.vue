@@ -3,11 +3,10 @@ import SettingsPanel from './SettingsPanel.vue';
 import { onMounted, ref, shallowRef, watch } from 'vue';
 import maplibregl from 'maplibre-gl';
 import { useBranchStore } from '@/stores/branchStore';
-import type { FeatureCollection, Point } from 'geojson'; // Добавьте типы
+import type { FeatureCollection, Point } from 'geojson';
 import 'maplibre-gl/dist/maplibre-gl.css';
 import '@/assets/map-styles.css';
 
-// Типизируем свойства ваших точек
 interface BranchProperties {
     id: number;
     name: string;
@@ -94,6 +93,7 @@ onMounted(async () => {
             clusterRadius: 50
         });
 
+        //Create Clusters
         m.addLayer({
             id: 'clusters',
             type: 'circle',
@@ -128,22 +128,20 @@ onMounted(async () => {
                 'circle-stroke-color': '#fff'
             }
         });
-
+        //After layers creation fetch branches
         isSourceReady.value = true;
         await branchStore.fetchBranches();
         renderMarkers();
     });
 
+    //Zoom on Clusters
     m.on('click', 'clusters', async (e) => {
         const features = m.queryRenderedFeatures(e.point, { layers: ['clusters'] });
-        
-        // 1. Извлекаем первый элемент в константу
+    
         const clusterFeature = features[0];
 
-        // 2. Делаем проверку на существование и наличие свойств
         if (!clusterFeature?.properties || !clusterFeature.geometry) return;
 
-        // 3. Теперь TS уверен, что свойства есть
         const clusterId = clusterFeature.properties.cluster_id as number;
         const source = m.getSource('branches-source') as maplibregl.GeoJSONSource;
 
@@ -158,14 +156,12 @@ onMounted(async () => {
         }
     });
 
+//Select point for editing branch information
     m.on('click', 'unclustered-point', (e) => {
-        // Извлекаем первый элемент массива из события
         const pointFeature = e.features?.[0];
 
-        // Проверяем наличие объекта и его свойств
         if (!pointFeature?.properties) return;
 
-        // Приводим свойства к вашему интерфейсу
         const props = pointFeature.properties as BranchProperties;
         const branch = branchStore.branches.find(b => b.id === props.id);
         
@@ -178,21 +174,26 @@ onMounted(async () => {
         }
     });
 
+    //Handle click on map canvas for new marker creation
     m.on('click', (e) => {
         const features = m.queryRenderedFeatures(e.point, { layers: ['unclustered-point', 'clusters'] });
+        //If clicked on existing marker -> return -> enter update mode of marker
         if (features.length > 0) return;
 
         branchStore.selectedBranch = null;
+        //Get lattitude + longitude from under the mouse click
         branchStore.draftCoords = { lat: Number(e.lngLat.lat.toFixed(7)), lng: Number(e.lngLat.lng.toFixed(7)) };
         updateDraftMarker(e.lngLat.lng, e.lngLat.lat);
     });
 
+    //Remove draft market on right click
     m.on('contextmenu', () => {
         if (draftMarker.value) { draftMarker.value.remove(); draftMarker.value = null; }
         branchStore.selectedBranch = null;
         branchStore.draftCoords = { lat: 0, lng: 0 };
     });
 
+    //Rerender markers after changes 
     watch(() => branchStore.branches, () => {
         if (draftMarker.value) { draftMarker.value.remove(); draftMarker.value = null; }
         renderMarkers();

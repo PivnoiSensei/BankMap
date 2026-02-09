@@ -10,12 +10,14 @@
     height: 100%;
 }
 
-/* Принудительный дефолтный курсор на холсте карты */
+/*Cursor style*/
 .maplibregl-canvas-container.maplibregl-interactive canvas {
     cursor: default !important;
 }
+.maplibregl-marker {
+    cursor: pointer;
+}
 
-/* Стилизация Popups для соответствия дизайну панели */
 .maplibregl-popup-content {
     border-radius: 8px !important;
     padding: 12px !important;
@@ -29,7 +31,3 @@
     color: #999;
 }
 
-/* Убираем "кулак" при перетаскивании маркеров */
-.maplibregl-marker {
-    cursor: pointer;
-}
