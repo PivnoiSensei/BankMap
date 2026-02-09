@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import SettingsPanel from './SettingsPanel.vue';
 import { onMounted, ref, shallowRef, watch } from 'vue';
 import maplibregl from 'maplibre-gl';
 import { useBranchStore } from '@/stores/branchStore';
@@ -19,45 +18,10 @@ interface BranchProperties {
 
 const mapContainer = ref<HTMLDivElement | null>(null);
 const map = shallowRef<maplibregl.Map | null>(null);
-const draftMarker = shallowRef<maplibregl.Marker | null>(null);
-const activePopups = shallowRef<maplibregl.Popup[]>([]);;
 const branchStore = useBranchStore();
 const isSourceReady = ref(false);
 
-const handleDistrictToggle = (isVisible: boolean) => {
-    const activeMap = map.value;
-    if (!activeMap) return;
-
-    const classes = ["continent", "hamlet", "isolated_dwelling"];
-    if(isVisible) classes.push("neighbourhood")
-    if(!map.value) return;
-    map.value.setFilter('place_other', [
-        "all",
-        ["in", "class", ...classes],
-        ["==", "$type", "Point"]
-    ]);
-};
-
-const updateDraftMarker = (lng: number, lat: number) => {
-    const activeMap = map.value;
-    if (!activeMap) return;
-
-    if (!draftMarker.value) {
-        draftMarker.value = new maplibregl.Marker({ color: '#aaaaaa', draggable: true })
-            .setLngLat([lng, lat])
-            .addTo(activeMap);
-            
-        draftMarker.value.on('dragend', () => {
-            const pos = draftMarker.value?.getLngLat();
-            if (pos) {
-                branchStore.draftCoords = { lat: Number(pos.lat.toFixed(7)), lng: Number(pos.lng.toFixed(7)) };
-            }
-        });
-    } else {
-        draftMarker.value.setLngLat([lng, lat]);
-    }
-};
-
+//Render markers from pinia storage
 const renderMarkers = () => {
     const activeMap = map.value;
     if (!activeMap || !isSourceReady.value) return;
@@ -78,6 +42,7 @@ const renderMarkers = () => {
 onMounted(async () => {
     if (!mapContainer.value) return;
 
+    //Define new Map instance + Load map style and data from tile.openstreetmap source
     const m = new maplibregl.Map({
         container: mapContainer.value,
         style: 'https://tile.openstreetmap.org.ua/styles/positron-gl-style/style.json',
@@ -91,6 +56,7 @@ onMounted(async () => {
     
     m.on('load', async () => {
 
+    //Filter unwanted districts
         m.setFilter('place_other', [
             "all",
             [
@@ -107,6 +73,7 @@ onMounted(async () => {
             ]
         ])
 
+        //Clusterisation
         m.addSource('branches-source', {
             type: 'geojson',
             data: { type: 'FeatureCollection', features: [] },
@@ -135,6 +102,7 @@ onMounted(async () => {
             layout: { 'text-field': ['get', 'point_count_abbreviated'], 'text-size': 12 }
         });
 
+        //Branches
         m.addLayer({
             id: 'unclustered-point',
             type: 'circle',
@@ -179,7 +147,7 @@ onMounted(async () => {
         }
     });
 
-//Select point for editing branch information
+    //Select branch for popup
     m.on('click', 'unclustered-point', (e) => {
         const pointFeature = e.features?.[0];
 
@@ -191,52 +159,30 @@ onMounted(async () => {
         if (branch) {
             branchStore.selectedBranch = branch;
             
-            const popup = new maplibregl.Popup({ offset: 15 })
+            new maplibregl.Popup({ offset: 15 })
                 .setLngLat([branchStore.selectedBranch.longitude, branchStore.selectedBranch.latitude])
                 .setHTML(`<b>${props.name}</b><br>${props.address}`)
                 .addTo(m);
-            activePopups.value.push(popup); 
         }
     });
 
-    //Handle click on map canvas for new marker creation
-    m.on('click', (e) => {
-        const features = m.queryRenderedFeatures(e.point, { layers: ['unclustered-point', 'clusters'] });
-        //If clicked on existing marker -> return -> enter update mode of marker
-        if (features.length > 0) return;
+    //Right click on map canvas
+    // m.on('contextmenu', () => {
+    //     branchStore.selectedBranch = null;
+    //     activePopups.value.forEach(p => p.remove());
+    //     activePopups.value = [];
+    // });
 
-        branchStore.selectedBranch = null;
-        //Get lattitude + longitude from under the mouse click
-        branchStore.draftCoords = { lat: Number(e.lngLat.lat.toFixed(7)), lng: Number(e.lngLat.lng.toFixed(7)) };
-        updateDraftMarker(e.lngLat.lng, e.lngLat.lat);
-    });
-
-    //Remove draft market on right click
-    m.on('contextmenu', () => {
-        if (draftMarker.value) { draftMarker.value.remove(); draftMarker.value = null; }
-        branchStore.selectedBranch = null;
-        branchStore.draftCoords = { lat: 0, lng: 0 };
-        activePopups.value.forEach(p => p.remove());
-        activePopups.value = [];
-    });
-
-    //Rerender markers after changes 
+    //Call markers render after branches data was fetched 
     watch(() => branchStore.branches, () => {
-        if (draftMarker.value) { draftMarker.value.remove(); draftMarker.value = null; }
-        activePopups.value.forEach(p => p.remove());
-        activePopups.value = [];
         renderMarkers();
     }, { deep: true });
 
-    watch(() => branchStore.selectedBranch, (val) => {
-        if (val && draftMarker.value) { draftMarker.value.remove(); draftMarker.value = null; }
-    });
 });
 </script>
 
 <template>
   <div class="map-wrap">
-    <SettingsPanel @toggle-districts="handleDistrictToggle" />
     <div ref="mapContainer" class="map-container"></div>
   </div>
 </template>

@@ -1,14 +1,10 @@
 <script setup lang="ts">
 import { RouterView } from 'vue-router'
+import '@/assets/main.css';
 </script>
 
 <template>
   <RouterView />
 </template>
 
-<style>
-#app {
-  width: 100%;
-  height: 100vh;
-}
-</style>
+

@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using BankMap.Api.Data;
 using BankMap.Api.Models;
 using Microsoft.AspNetCore.Mvc;

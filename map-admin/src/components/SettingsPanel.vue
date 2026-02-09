@@ -77,8 +77,8 @@ const handleCsvUpload = async (event: Event) => {
     <div class="section">
       <h4>Шари</h4>
       <label class="switch">
-        <input type="checkbox" checked @change="(e: any) => emit('toggle-districts', e.target.checked)">
-        Показувати райони
+        <input type="checkbox" class="district-checkbox" checked @change="(e: any) => emit('toggle-districts', e.target.checked)">
+        Показувати мікрорайони
       </label>
     </div>
 
@@ -136,7 +136,7 @@ const handleCsvUpload = async (event: Event) => {
       <h4>Масовий імпорт</h4>
       <input type="file" ref="fileInput" style="display: none" accept=".csv" @change="handleCsvUpload" />
       <button type="button" class="import-btn" @click="fileInput?.click()">
-          📥 Завантажити CSV
+          Завантажити CSV
       </button>
     </div>
   </div>
