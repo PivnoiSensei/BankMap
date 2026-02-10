@@ -1,4 +1,4 @@
-<script setup lang="ts">
+<!-- <script setup lang="ts">
 import { onMounted, ref, shallowRef, watch } from 'vue';
 import maplibregl from 'maplibre-gl';
 import { useBranchStore } from '@/stores/branchStore';
@@ -185,4 +185,4 @@ onMounted(async () => {
   <div class="map-wrap">
     <div ref="mapContainer" class="map-container"></div>
   </div>
-</template>
+</template> -->

@@ -2,20 +2,15 @@
 @import url('../assets/fonts/GraphikLCG/stylesheet.css');
 
 .settings-panel {
-    position: absolute;
-    top: 15px;
-    left: 15px;
-    z-index: 100;
-    width: 260px;
     max-height: calc(100vh - 40px);
     overflow-y: auto;
     background: rgba(255, 255, 255, 0.85);
     backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
     border: 1px solid rgba(255, 255, 255, 0.3);
     border-radius: 12px;
     padding: 16px;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+    max-width: 260px;
+    /* box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12); */
     font-family: 'GraphikLCG', sans-serif;
     transition: all 0.3s ease;
 }
@@ -41,7 +36,6 @@
     margin: 12px 0;
 }
 
-/* Форма и инпуты */
 .settings-panel input, 
 .settings-panel select {
     width: 100%;
@@ -56,40 +50,7 @@
     transition: border-color 0.2s;
 }
 
-.district-checkbox{
-    width: fit-content !important;
-    margin: 0 !important;
-}
-
-.settings-panel input:focus {
-    border-color: #007bff;
-}
-
-.coords {
-    display: flex;
-    gap: 8px;
-    margin-bottom: 8px;
-}
-
-.coord-input {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-}
-
-.coord-input label {
-    font-size: 10px;
-    color: #999;
-    margin-bottom: 2px;
-    text-transform: uppercase;
-}
-
-.coord-input input {
-    margin-bottom: 0;
-    font-size: 12px;
-}
-
-/* Кнопки */
+/*Buttons*/
 .settings-panel button {
     width: 100%;
     padding: 10px;
@@ -99,18 +60,16 @@
     cursor: pointer;
     transition: background 0.2s, transform 0.1s;
     margin-top: 4px;
+    color: #fafafa;
 }
 
-.settings-panel button:active {
-    transform: scale(0.98);
-}
-
-.settings-panel button[type="submit"] {
-    background: #007bff;
-    color: white;
+.settings-checkbox{
+    width: fit-content!important;
+    margin: 0!important;
 }
 
 .settings-panel button.update-btn {
+    margin-top: 8px;
     background: #28a745;
 }
 
@@ -129,16 +88,6 @@
     color: #f0f0f0;
 }
 
-.switch {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    font-size: 14px;
-    color: #444;
-    cursor: pointer;
-    margin-top: 12px;
-}
-
 .delete-btn {
     background: #dc3545 !important;
     color: white;
@@ -151,3 +100,11 @@
     margin-top: 5px;
 }
 .import-btn:hover { background: #59359a !important; }
+
+.stats-footer {
+    margin-top: 16px;
+    padding-top: 10px;
+    border-top: 1px solid #eee;
+    color: #666;
+    text-align: center;
+}

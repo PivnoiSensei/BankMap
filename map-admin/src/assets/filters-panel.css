@@ -1,0 +1,51 @@
+.filters-panel{
+    display: flex;
+    flex-direction: column;
+    max-height: fit-content;
+    overflow-y: auto;
+    background: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 12px;
+    padding: 16px;
+    /* box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12); */
+    font-family: 'GraphikLCG', sans-serif;
+    transition: all 0.3s ease;
+}
+
+.filters-panel h4{
+    margin: 0px 0 12px 0;
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.filters-section{
+    display: flex;
+    align-items: center;
+    column-gap: 12px;
+}
+
+.switch {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    color: #444;
+    cursor: pointer;
+    margin-top: 12px;
+}
+
+.filter-group label {
+    display: block;
+    font-size: 0.9em;
+    margin-bottom: 5px;
+    font-weight: bold;
+    color: #666;
+}
+.filter-group select {
+    width: 100%;
+    padding: 8px;
+    border-radius: 4px;
+    border: 1px solid #ccc;
+}

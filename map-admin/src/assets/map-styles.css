@@ -31,3 +31,16 @@
     color: #999;
 }
 
+/*tools*/
+.tools-container{
+    position: absolute;
+    z-index: 100;
+    column-gap: 16px;
+    display: flex;
+    max-height: calc(100vh - 40px);
+    overflow-y: auto;
+    border-radius: 12px;
+    padding: 16px;
+    font-family: 'GraphikLCG', sans-serif;
+}
+

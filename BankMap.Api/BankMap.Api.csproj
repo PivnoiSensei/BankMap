@@ -9,6 +9,9 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Migrations\20260210152702_AddNewDataModel.cs" />
+    <Compile Remove="Migrations\20260210152702_AddNewDataModel.Designer.cs" />
+    <Compile Remove="Models\DepartmentsImportRootDto.cs" />
     <Compile Remove="WeatherForecast.cs" />
   </ItemGroup>
 
