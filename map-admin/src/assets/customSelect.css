@@ -1,16 +1,17 @@
 .custom-select {
   position: relative;
-  width: 120px;
+  width: fit-content;
   cursor: pointer;
   user-select: none;
+  font-size: clamp(13px, 0.9vw, 16px);
 }
 
 .custom-select-trigger {
-  padding: 8px 12px;
+  padding: clamp(10px, 0.6vw, 14px) clamp(12px, 0.8vw, 16px);
+  padding-right: 32px; 
   border: 1px solid #d1d5db;
   border-radius: 8px;
   background: white;
-  font-size: 14px;
 }
 
 .custom-select-trigger::after {
@@ -41,15 +42,18 @@
   position: absolute;
   top: 100%;
   left: 0;
-  right: 0;
+  min-width: 140px; 
+  width: 100%;
 
-  margin-top: 4px;
+  margin-top: 6px;
   background: white;
   border: 1px solid #e5e7eb;
   border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
 
-  max-height: 260px;
+  max-height: 320px;
   overflow-y: auto;
+  z-index: 10;
 
   opacity: 0;
   pointer-events: none;
@@ -64,7 +68,8 @@
 }
 
 .popup-day-option {
-  padding: 8px 12px;
+  padding: clamp(10px, 0.6vw, 14px) 12px;
+  transition: background 0.2s;
 }
 
 .popup-day-option:hover {

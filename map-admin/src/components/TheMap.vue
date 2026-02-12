@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import SettingsPanel from './SettingsPanel.vue';
 import FiltersPanel from './FiltersPanel.vue';
-import { onMounted, ref, shallowRef, watch } from 'vue';
+import {onMounted, ref, shallowRef, watch, computed } from 'vue';
+import { useRoute } from 'vue-router';
 import maplibregl from 'maplibre-gl';
 import { useBranchStore, type BankMarker, type WorkDay, type CashDepartment } from '@/stores/branchStore';
 import type { FeatureCollection, Point } from 'geojson';
@@ -9,7 +10,9 @@ import 'maplibre-gl/dist/maplibre-gl.css';
 import '@/assets/map-styles.css';
 import '@/assets/customSelect.css'
 
-// Строгий интерфейс свойств маркера для GeoJSON (плоская структура)
+const route = useRoute();
+const isAdmin = computed(() => route.meta.isAdmin);
+
 interface MapMarkerProperties {
     id: number;
     name: string;
@@ -28,7 +31,7 @@ const isSourceReady = ref(false);
 
 const createPopupHtml = (branch: BankMarker): string => {
     const d = branch.details;
-    // Находим основной график и график кассы
+    //Separate timetables for department and cash in department
     const deptTable = d?.TimeTables?.find(t => t.Workstation === 'department');
     const cashTable = d?.TimeTables?.find(t => t.Workstation === 'cashDepartment');
     
@@ -51,8 +54,7 @@ const createPopupHtml = (branch: BankMarker): string => {
             ${name}
         </div>
     `).join('');
-    console.log(branch.isRegular);
-    
+
     return `
     <div class="map-popup">
         <div class="popup-header">
@@ -85,9 +87,9 @@ const createPopupHtml = (branch: BankMarker): string => {
         <div class="popup-body">
             <div class="popup-body-subtitle">Телефон:</div>
             <div>0 800 30 70 10</div>
-            <div>Цілодобово і безкоштовно в межах України</div>
+            <div style="margin-bottom: 4px;">Цілодобово і безкоштовно в межах України</div>
         </div>
-            <div class="popup-body-subtitle" style="margin-bottom: 4px;">Графік роботи:</div>
+            <div class="popup-body-subtitle">Графік роботи:</div>
         ${branch.isTemporaryClosed ? '<h4 class = "popup-title">Тимчасово не працює</h4>' : `
             <div class="popup-footer" id="popup-content-${branch.id}">
                 ${currentDayData ? renderWorkTime(currentDayData, currentCashDay, cashDepsDay?.filter((day): day is WorkDay => !!day), d?.CashDepartments) : '<i>Графік на сьогодні відсутній</i>'}
@@ -148,6 +150,9 @@ const zoomToCity = (city: string) => {
     const cityBranches = branchStore.rawBranches.filter(b => b.baseCity === city);
     if (!cityBranches.length) return;
 
+    activeMap.stop(); 
+    activeMap.setPadding({ top: 0, bottom: 0, left: 0, right: 0 });
+
     const bounds = new maplibregl.LngLatBounds();
 
     cityBranches.forEach(b => {
@@ -155,9 +160,11 @@ const zoomToCity = (city: string) => {
     });
 
     activeMap.fitBounds(bounds, {
-        padding: 80,
+        padding: { top: 80, bottom: 80, left: 80, right: 80 }, 
+        minZoom: 12,
         maxZoom: 13,
-        duration: 800
+        duration: 800,
+        essential: true 
     });
 };
 
@@ -290,11 +297,19 @@ onMounted(async () => {
             activePopups.value.forEach(p => p.remove());
             activePopups.value = [];
 
-            const popup = new maplibregl.Popup({ offset: 15, maxWidth: 'none' })
+            const popup = new maplibregl.Popup({ offset: 15, maxWidth: 'none', anchor: 'bottom'})
                 .setLngLat([branch.longitude, branch.latitude])
                 .setHTML(createPopupHtml(branch))
                 .addTo(map.value);
             activePopups.value.push(popup);
+
+            m.flyTo({
+                center: [branch.longitude, branch.latitude],
+                padding: { top: 600, bottom: 0, left: 0, right: 0 }, 
+                speed: 0.8,
+                zoom: 14
+            })
+
         }
     });
 
@@ -408,7 +423,7 @@ onMounted(async () => {
 <template>
   <div class="map-wrap">
     <div class="tools-container">
-        <SettingsPanel @toggle-districts="handleDistrictToggle" />
+        <SettingsPanel @toggle-districts="handleDistrictToggle" v-if="isAdmin" />
         <FiltersPanel/>
     </div>
     <div ref="mapContainer" class="map-container"></div>
