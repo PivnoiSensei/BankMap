@@ -58,6 +58,8 @@ namespace BankMap.Api.Models
 
         public List<string> ExtraServices { get; set; } = new();
         public List<TimeTableDto> TimeTables { get; set; } = new();
+
+        public List<CashDepartmentDto> CashDepartments { get; set; } = new();
     }
 
     public class AddressDto
@@ -92,5 +94,25 @@ namespace BankMap.Api.Models
     {
         public string BreakFrom { get; set; } = "";
         public string BreakTo { get; set; } = "";
+    }
+
+    //Separate cash
+    public class CashDepartmentDto
+    {
+        public int CashId { get; set; }
+
+        public string CashDescription { get; set; } = "";
+
+        public List<CashWorkDayDto> WorkDays { get; set; } = new();
+    }
+
+    public class CashWorkDayDto
+    {
+        public string DayOfWeek { get; set; } = ""; 
+
+        public string WorkFrom { get; set; } = "";
+        public string WorkTo { get; set; } = "";
+
+        public List<BreakDto> Breaks { get; set; } = new();
     }
 }

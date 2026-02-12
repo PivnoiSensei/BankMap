@@ -3,8 +3,7 @@
     flex-direction: column;
     max-height: fit-content;
     overflow-y: auto;
-    background: rgba(255, 255, 255, 0.85);
-    backdrop-filter: blur(10px);
+    background: #fff;
     border: 1px solid rgba(255, 255, 255, 0.3);
     border-radius: 12px;
     padding: 16px;

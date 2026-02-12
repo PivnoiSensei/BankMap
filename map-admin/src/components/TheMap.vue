@@ -3,7 +3,7 @@ import SettingsPanel from './SettingsPanel.vue';
 import FiltersPanel from './FiltersPanel.vue';
 import { onMounted, ref, shallowRef, watch } from 'vue';
 import maplibregl from 'maplibre-gl';
-import { useBranchStore, type BankMarker, type WorkDay } from '@/stores/branchStore';
+import { useBranchStore, type BankMarker, type WorkDay, type CashDepartment } from '@/stores/branchStore';
 import type { FeatureCollection, Point } from 'geojson';
 import 'maplibre-gl/dist/maplibre-gl.css';
 import '@/assets/map-styles.css';
@@ -38,46 +38,95 @@ const createPopupHtml = (branch: BankMarker): string => {
 
     const currentDayData = workDays[currentDayIndex];
     const currentCashDay = cashTable?.WorkDays.find(cd => cd.WorkingDay === currentDayData?.WorkingDay);
-
+    
+    //Separate CashDeps
+    const cashDeps = d?.CashDepartments;
+    const cashDepsDay = cashDeps?.map(cash => cash?.WorkDays.find(cd => cd.DayOfWeek === currentDayData?.WorkingDay))
+    
     const daysNames = ["Понеділок", "Вівторок", "Середа", "Четвер", "П'ятниця", "Субота", "Неділя"];
 
     const daysOptions = daysNames.map((name, i) => {
         const isSelected = i === currentDayIndex ? 'selected' : '';
         return `<option value="${i}" ${isSelected}>${name}</option>`;
     }).join('');
-
-
+    
     return `
     <div class="map-popup">
-        <div class="popup-header" style="display: flex; justify-content: space-between; align-items: center; gap: 10px; margin-bottom: 10px;">
-            <strong style="font-size: 1.1em; color: #007bff;">${branch.name}</strong>
-            <select class="popup-day-select" data-branch-id="${branch.id}" style="padding: 2px; border-radius: 4px;">
+        <div class="popup-header">
+            <strong class="popup-title">${branch.name.includes(`в м. ${branch.baseCity}`)
+            ? branch.name
+            : `${branch.name} в м. ${branch.baseCity}`}
+            </strong>
+            <select class="popup-day-select" data-branch-id="${branch.id}">
                  ${daysOptions}
             </select>
         </div>
 
-        <div class="popup-body" style="margin-bottom: 10px; font-size: 0.9em;">
-            <div><b>Місто:</b> ${branch.baseCity}</div>
-            <div><b>Адреса:</b> ${branch.fullAddress}</div>
-            ${d?.Address?.DetailedAddress ? `<div><b>ℹ️ Помітка:</b> ${d.Address.DetailedAddress}</div>` : ''}
+        <div class="popup-body">
+            <div class="popup-body-subtitle">Адреса:</div>
+            <div> ${branch.fullAddress}</div>
+            ${d?.Address?.DetailedAddress ? `<div class="detailed-address">
+            ${d.Address.DetailedAddress.charAt(0).toUpperCase() + d.Address.DetailedAddress.slice(1, d.Address.DetailedAddress.length)}
+            </div>` : ''}
         </div>
 
-         <div class="popup-footer" id="popup-content-${branch.id}" style="background: #f8f9fa; padding: 8px; border-radius: 4px; font-size: 0.85em;">
-            ${currentDayData ? renderWorkTime(currentDayData, currentCashDay) : '<i>Графік на сьогодні відсутній</i>'}
+        <div class="popup-body">
+            <div class="popup-body-subtitle">Телефон:</div>
+            <div>0 800 30 70 10</div>
+            <div>Цілодобово і безкоштовно в межах України</div>
+        </div>
+            <div class="popup-body-subtitle" style="margin-bottom: 4px;">Графік роботи:</div>
+        <div class="popup-footer" id="popup-content-${branch.id}">
+            ${currentDayData ? renderWorkTime(currentDayData, currentCashDay, cashDepsDay?.filter((day): day is WorkDay => !!day), d?.CashDepartments) : '<i>Графік на сьогодні відсутній</i>'}
         </div>
     </div>
     `;
 };
 
-const renderWorkTime = (day: WorkDay, cashDay?: WorkDay) => {
+const renderWorkTime = (day: WorkDay, cashDay?: WorkDay, cashDepsDay?: WorkDay[], cashDepartment?: CashDepartment[]) => {
     const breaks = day.Breaks?.length 
         ? day.Breaks.map(b => `${b.BreakFrom}-${b.BreakTo}`).join(', ') 
-        : '—';
+        : '-';
 
+    function renderCashes(cashDepartment:CashDepartment[] | undefined, cashDepsDay: WorkDay[] | undefined){
+        if(!cashDepartment || !cashDepsDay){
+            return ''
+        }else{
+            //Breaks array for each cash dep
+            const cashBreaks = cashDepsDay.map(cash => {
+                return cash.Breaks.map(b => `${b.BreakFrom} - ${b.BreakTo}`).join(', ')
+            })
+
+            console.log(cashBreaks);
+            
+
+            //Create HTML for cash deps description + worktime
+            const cashInfo = cashDepsDay.map((cash, index) => 
+                `
+                <hr/>
+                <div class="cashdeps-container">
+                   <div style="margin-bottom: 4px; color: #000"> ${cashDepartment[index]? `${cashDepartment[index].CashDescription}: ` : ''}</div>
+                   <div class="cashdeps-time"> ${cash ? `${cash.WorkFrom} - ${cash.WorkTo}` : 'не працює'}</div> 
+                </div>
+                <div class="popup-body-subtitle" style="margin-bottom: 4px;">Перерва: <div class="cashdeps-time"> ${cashBreaks[index] ? cashBreaks[index] : '-'}</div> </div>
+  
+                `
+            );
+            const CashInfoJoined = cashInfo.join('')
+            return CashInfoJoined
+        }
+    }
+   
+    const cashInfoHTML = renderCashes(cashDepartment, cashDepsDay);
     return `
-        <div style="margin-bottom: 4px;"><b>Відділення:</b> ${day.WorkFrom} - ${day.WorkTo}</div>
-        <div style="margin-bottom: 4px;"><b>Перерва:</b> ${breaks}</div>
-        <div style="color: #28a745;"><b>Каса:</b> ${cashDay ? `${cashDay.WorkFrom} - ${cashDay.WorkTo}` : 'не працює'}</div>
+        <div style="margin-bottom: 4px;">${day.WorkFrom} - ${day.WorkTo}</div>
+        ${breaks !== '-' ? 
+        `
+            <div class="popup-body-subtitle" style="margin-bottom: 4px;">Перерва:</div>
+            <div style="margin-bottom: 4px; color: #000"> ${breaks}</div>
+        `: ''}
+        ${cashDay? `<div style="color: #28a745; margin-bottom: 4px;">Каса у відділенні: ${cashDay ? `${cashDay.WorkFrom} - ${cashDay.WorkTo}` : 'не працює'}</div>` : ''}
+        ${cashInfoHTML !== '' ? `<div class="popup-body-subtitle">Окремі каси:</div> ${cashInfoHTML}`: ''}
     `;
 };
 
@@ -230,8 +279,7 @@ onMounted(async () => {
             activePopups.value.forEach(p => p.remove());
             activePopups.value = [];
 
-
-            const popup = new maplibregl.Popup({ offset: 15 })
+            const popup = new maplibregl.Popup({ offset: 15, maxWidth: 'none' })
                 .setLngLat([branch.longitude, branch.latitude])
                 .setHTML(createPopupHtml(branch))
                 .addTo(map.value);
@@ -263,9 +311,13 @@ onMounted(async () => {
                 
                 const selectedDay = deptDays[dayIndex];
                 const selectedCashDay = cashDays.find(cd => cd.WorkingDay === selectedDay?.WorkingDay);
+
+                //Separate CashDeps
+                const cashDeps = d?.CashDepartments;
+                const cashDepsDay = cashDeps?.map(cash => cash?.WorkDays.find(cd => cd.DayOfWeek === selectedDay?.WorkingDay))
                 
                 if (selectedDay) {
-                    displayDiv.innerHTML = renderWorkTime(selectedDay, selectedCashDay);
+                    displayDiv.innerHTML = renderWorkTime(selectedDay, selectedCashDay, cashDepsDay?.filter((day): day is WorkDay => !!day), d?.CashDepartments);
                 }else{
                     displayDiv.innerHTML = 'Вихідний';
                 }

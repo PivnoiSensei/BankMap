@@ -63,9 +63,9 @@ namespace BankMap.Api.Controllers
                 if (root?.List == null || !root.List.Any())
                     return BadRequest("Invalid JSON structure");
 
-                //// Полная очистка таблицы
-                //_context.Branches.RemoveRange(_context.Branches);
-                //await _context.SaveChangesAsync();
+                // Полная очистка таблицы
+                _context.Branches.RemoveRange(_context.Branches);
+                await _context.SaveChangesAsync();
 
                 var branches = root.List.Select(dto => new BankBranch
                 {

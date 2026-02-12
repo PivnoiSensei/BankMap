@@ -1,3 +1,4 @@
+@import url('../assets/fonts/GraphikLCG/stylesheet.css');
 .map-wrap {
     position: relative;
     width: 100%;
@@ -18,19 +19,6 @@
     cursor: pointer;
 }
 
-.maplibregl-popup-content {
-    border-radius: 8px !important;
-    padding: 12px !important;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.15) !important;
-    font-family: sans-serif;
-}
-
-.maplibregl-popup-close-button {
-    font-size: 16px;
-    padding: 4px 8px;
-    color: #999;
-}
-
 /*tools*/
 .tools-container{
     position: absolute;
@@ -44,3 +32,83 @@
     font-family: 'GraphikLCG', sans-serif;
 }
 
+/*Popups*/
+/* .map-popup{
+    width: 400px;
+} */
+
+.maplibregl-popup-content {
+    width: 400px;
+    border-radius: 8px !important;
+    padding: 24px !important;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.15) !important;
+    font-family: 'GraphikLCG', sans-serif!important;
+}
+
+.popup-header{
+    display: flex; 
+    justify-content: space-between; 
+    align-items: center; 
+    gap: 16px; 
+    margin-bottom: .69vw;
+}
+
+.popup-title{
+    font-size: 1.1vw; 
+    line-height: 1.53vw;
+    color: #fb5205;
+}
+
+.popup-day-select{
+    padding: 2px; 
+    border-radius: 4px;
+    margin-bottom: auto;
+}
+
+.popup-body{
+    margin-bottom: 12px;
+    font-size: .9vw;
+    font-weight: 400;
+    line-height: 1.25vw;
+    letter-spacing: .01px;
+}
+
+.popup-body-subtitle{
+    font-size: .9vw;
+    font-weight: 400;
+    line-height: 1.25vw;
+    letter-spacing: .01px;
+    color: #6c6c6c;
+}
+
+.popup-footer{
+    border-radius: 4px;
+    font-size: .9vw;
+    font-weight: 400;
+    line-height: 1.25vw;
+    letter-spacing: .01px;
+}
+
+.detailed-address{
+    font-style: italic;
+    color: #6c6c6c;
+}
+
+/*Cashdeps*/
+.cashdeps-container{
+    display: flex;
+    align-items: center;
+    column-gap: 8px;
+}
+
+.cashdeps-time{
+    margin-bottom: 4px; color: #000;  
+    white-space: nowrap; 
+    overflow: hidden; 
+}
+
+.maplibregl-popup-close-button {
+    font-size: 16px;
+    padding: 4px 8px;
+    color: #999;
+}

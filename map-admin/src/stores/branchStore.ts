@@ -9,6 +9,7 @@ export interface Break {
 
 export interface WorkDay {
     WorkingDay: string;
+    DayOfWeek: string; //For separate deps
     WorkFrom: string;
     WorkTo: string;
     Breaks: Break[];
@@ -16,6 +17,11 @@ export interface WorkDay {
 
 export interface TimeTable {
     Workstation: string;
+    WorkDays: WorkDay[];
+}
+
+export interface CashDepartment{
+    CashDescription: string;
     WorkDays: WorkDay[];
 }
 
@@ -36,6 +42,7 @@ export interface BranchDetails {
         };
     };
     TimeTables: TimeTable[];
+    CashDepartments: CashDepartment[]; 
 }
 
 export interface BankMarker {
