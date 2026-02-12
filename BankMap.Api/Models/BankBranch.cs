@@ -30,6 +30,7 @@ namespace BankMap.Api.Models
         public double Longitude { get; set; }
 
         public bool IsTemporaryClosed { get; set; }
+        public bool IsRegular { get; set; }
 
         // Полный JSON отделения (timeTables, phones, services и т.д.)
         [Column(TypeName = "nvarchar(max)")] 
@@ -51,6 +52,7 @@ namespace BankMap.Api.Models
         public string DepartmentType { get; set; } = "";
         public string DepartmentName { get; set; } = "";
         public bool IsTemporaryClosed { get; set; }
+        public bool IsRegular { get; set; }
 
         public string FullAddress { get; set; } = "";
 

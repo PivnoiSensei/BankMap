@@ -30,6 +30,7 @@ export interface BranchDetails {
     DepartmentType: 'department' | 'atm' | 'terminal';
     DepartmentName: string;
     IsTemporaryClosed: boolean;
+    IsRegular: boolean;
     FullAddress: string;
     ExtraServices: string[];
     Address: {
@@ -54,6 +55,7 @@ export interface BankMarker {
     latitude: number;
     longitude: number;
     isTemporaryClosed: boolean;
+    isRegular: boolean;
     dataJson: string;
     details?: BranchDetails;
 }

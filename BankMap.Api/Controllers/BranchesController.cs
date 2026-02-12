@@ -77,6 +77,7 @@ namespace BankMap.Api.Controllers
                     Latitude = dto.Address?.GeoLocation?.Lat ?? 0,
                     Longitude = dto.Address?.GeoLocation?.Long ?? 0,
                     IsTemporaryClosed = dto.IsTemporaryClosed,
+                    IsRegular = dto.IsRegular,
                     DataJson = JsonSerializer.Serialize(dto),
                     LastUpdated = DateTime.UtcNow
                 }).ToList();

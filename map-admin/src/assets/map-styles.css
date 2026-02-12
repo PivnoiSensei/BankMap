@@ -50,13 +50,25 @@
     justify-content: space-between; 
     align-items: center; 
     gap: 16px; 
-    margin-bottom: .69vw;
+    margin-bottom: 0.50vw
 }
 
 .popup-title{
     font-size: 1.1vw; 
     line-height: 1.53vw;
     color: #fb5205;
+}
+
+.regular-container{
+    display: flex;
+    align-items: center;
+    column-gap: 8px;
+    margin-bottom: 0.50vw
+}
+
+.regular-icon{
+    width: 1.32vw;
+    height: 1.32vw; 
 }
 
 .popup-day-select{
@@ -111,4 +123,5 @@
     font-size: 16px;
     padding: 4px 8px;
     color: #999;
+    border-top-right-radius: 8px;
 }

@@ -1,0 +1,77 @@
+.custom-select {
+  position: relative;
+  width: 120px;
+  cursor: pointer;
+  user-select: none;
+}
+
+.custom-select-trigger {
+  padding: 8px 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  background: white;
+  font-size: 14px;
+}
+
+.custom-select-trigger::after {
+  content: "";
+  position: absolute;
+  right: 10px;
+  top: 50%;
+
+  width: 6px;
+  height: 6px;
+
+  border-right: 2px solid #6b7280;
+  border-bottom: 2px solid #6b7280;
+
+  transform: translateY(-60%) rotate(45deg);
+  transition: transform 0.2s ease;
+}
+
+.custom-select.open .custom-select-trigger::after {
+  transform: translateY(-40%) rotate(-135deg);
+}
+
+.custom-select.open .custom-select-trigger {
+  border-color: #fb5205;
+}
+
+.custom-select-dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+
+  margin-top: 4px;
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+
+  max-height: 260px;
+  overflow-y: auto;
+
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(-4px);
+  transition: 0.15s ease;
+}
+
+.custom-select.open .custom-select-dropdown {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateY(0);
+}
+
+.popup-day-option {
+  padding: 8px 12px;
+}
+
+.popup-day-option:hover {
+  background: #f3f4f6;
+}
+
+.popup-day-option.selected {
+  background: rgb(251, 82, 5, 0.1);
+  font-weight: 500;
+}

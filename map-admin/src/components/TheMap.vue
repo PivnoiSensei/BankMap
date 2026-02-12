@@ -7,6 +7,7 @@ import { useBranchStore, type BankMarker, type WorkDay, type CashDepartment } fr
 import type { FeatureCollection, Point } from 'geojson';
 import 'maplibre-gl/dist/maplibre-gl.css';
 import '@/assets/map-styles.css';
+import '@/assets/customSelect.css'
 
 // Строгий интерфейс свойств маркера для GeoJSON (плоская структура)
 interface MapMarkerProperties {
@@ -44,11 +45,13 @@ const createPopupHtml = (branch: BankMarker): string => {
     const cashDepsDay = cashDeps?.map(cash => cash?.WorkDays.find(cd => cd.DayOfWeek === currentDayData?.WorkingDay))
     
     const daysNames = ["Понеділок", "Вівторок", "Середа", "Четвер", "П'ятниця", "Субота", "Неділя"];
-
-    const daysOptions = daysNames.map((name, i) => {
-        const isSelected = i === currentDayIndex ? 'selected' : '';
-        return `<option value="${i}" ${isSelected}>${name}</option>`;
-    }).join('');
+    const daysOptions = daysNames.map((name, i) => `
+        <div class="popup-day-option ${i === currentDayIndex ? 'selected' : ''}" 
+            data-value="${i}">
+            ${name}
+        </div>
+    `).join('');
+    console.log(branch.isRegular);
     
     return `
     <div class="map-popup">
@@ -57,11 +60,20 @@ const createPopupHtml = (branch: BankMarker): string => {
             ? branch.name
             : `${branch.name} в м. ${branch.baseCity}`}
             </strong>
-            <select class="popup-day-select" data-branch-id="${branch.id}">
-                 ${daysOptions}
-            </select>
-        </div>
+            <div class="popup-day-select custom-select" 
+                data-branch-id="${branch.id}" 
+                data-value="${currentDayIndex}">
+                        
+                    <div class="custom-select-trigger">
+                        ${daysNames[currentDayIndex]}
+                    </div>
 
+                    <div class="custom-select-dropdown">
+                        ${daysOptions}
+                    </div>
+            </div>
+        </div>
+        ${branch.isRegular ? '<div class="popup-body-subtitle regular-container"><img src = "/icon-regular.svg" class = "regular-icon"> Чергове</div>': ''}
         <div class="popup-body">
             <div class="popup-body-subtitle">Адреса:</div>
             <div> ${branch.fullAddress}</div>
@@ -76,9 +88,12 @@ const createPopupHtml = (branch: BankMarker): string => {
             <div>Цілодобово і безкоштовно в межах України</div>
         </div>
             <div class="popup-body-subtitle" style="margin-bottom: 4px;">Графік роботи:</div>
-        <div class="popup-footer" id="popup-content-${branch.id}">
-            ${currentDayData ? renderWorkTime(currentDayData, currentCashDay, cashDepsDay?.filter((day): day is WorkDay => !!day), d?.CashDepartments) : '<i>Графік на сьогодні відсутній</i>'}
-        </div>
+        ${branch.isTemporaryClosed ? '<h4 class = "popup-title">Тимчасово не працює</h4>' : `
+            <div class="popup-footer" id="popup-content-${branch.id}">
+                ${currentDayData ? renderWorkTime(currentDayData, currentCashDay, cashDepsDay?.filter((day): day is WorkDay => !!day), d?.CashDepartments) : '<i>Графік на сьогодні відсутній</i>'}
+            </div>`
+        }
+
     </div>
     `;
 };
@@ -95,10 +110,7 @@ const renderWorkTime = (day: WorkDay, cashDay?: WorkDay, cashDepsDay?: WorkDay[]
             //Breaks array for each cash dep
             const cashBreaks = cashDepsDay.map(cash => {
                 return cash.Breaks.map(b => `${b.BreakFrom} - ${b.BreakTo}`).join(', ')
-            })
-
-            console.log(cashBreaks);
-            
+            })            
 
             //Create HTML for cash deps description + worktime
             const cashInfo = cashDepsDay.map((cash, index) => 
@@ -109,7 +121,6 @@ const renderWorkTime = (day: WorkDay, cashDay?: WorkDay, cashDepsDay?: WorkDay[]
                    <div class="cashdeps-time"> ${cash ? `${cash.WorkFrom} - ${cash.WorkTo}` : 'не працює'}</div> 
                 </div>
                 <div class="popup-body-subtitle" style="margin-bottom: 4px;">Перерва: <div class="cashdeps-time"> ${cashBreaks[index] ? cashBreaks[index] : '-'}</div> </div>
-  
                 `
             );
             const CashInfoJoined = cashInfo.join('')
@@ -293,13 +304,56 @@ onMounted(async () => {
         activePopups.value = [];
     });
 
+    //Days Select listeners
+    mapContainer.value?.addEventListener('click', (event) => {
+    const target = event.target as HTMLElement;
+
+    const select = target.closest('.custom-select') as HTMLElement;
+    if (select && target.classList.contains('custom-select-trigger')) {
+        select.classList.toggle('open');
+        return;
+    }
+
+        const option = target.closest('.popup-day-option') as HTMLElement;
+        if (option) {
+            const select = option.closest('.custom-select') as HTMLElement;
+            if (!select) return;
+
+            const trigger = select.querySelector('.custom-select-trigger') as HTMLElement;
+            const value = option.dataset.value!;
+
+            select.querySelectorAll('.popup-day-option')
+                .forEach(o => o.classList.remove('selected'));
+            option.classList.add('selected');
+
+            trigger.textContent = option.textContent;
+            select.dataset.value = value;
+            select.classList.remove('open');
+
+            const changeEvent = new Event('change', { bubbles: true });
+
+            Object.defineProperty(select, 'value', {
+                value,
+                writable: true
+            });
+
+            select.dispatchEvent(changeEvent);
+        }
+    }); 
+
     mapContainer.value?.addEventListener('change', (event) => {
 
-        const target = event.target as HTMLSelectElement;
+        const target = event.target as HTMLElement;
         
         if (target && target.classList.contains('popup-day-select')) {
             const branchId = Number(target.dataset.branchId);
-            const dayIndex = Number(target.value);
+            let dayIndex: number;
+
+            if (target instanceof HTMLSelectElement) {
+                dayIndex = Number(target.value);
+            } else {
+                dayIndex = Number(target.dataset.value);
+            }
             
             const branch = branchStore.rawBranches.find(b => b.id === branchId);
             const displayDiv = document.getElementById(`popup-content-${branchId}`);
