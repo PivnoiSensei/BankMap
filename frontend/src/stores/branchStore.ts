@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
 import axios from 'axios'
-
+const API_URL = import.meta.env.VITE_API_URL || 'http://backend:8080';
 // Полная структура данных из JSON
 export interface Break {
     BreakFrom: string;
@@ -88,7 +88,7 @@ export const useBranchStore = defineStore('branchStore', {
         async fetchBranches() {
             this.isLoading = true;
             try {
-                const { data } = await axios.get<BankMarker[]>('https://localhost:7148/api/branches');
+                const { data } = await axios.get<BankMarker[]>(`${API_URL}/api/branches`);
                 
                 // Парсим JSON детали сразу при получении
                 this.rawBranches = data.map(branch => ({
@@ -110,7 +110,7 @@ export const useBranchStore = defineStore('branchStore', {
                 formData.append('file', file);
 
                 await axios.post(
-                    'https://localhost:7148/api/branches/import-json',
+                    `${API_URL}/api/branches/import-json`,
                     formData
                 );
 
@@ -124,7 +124,7 @@ export const useBranchStore = defineStore('branchStore', {
 
         async updateBranchStatus(id: number, isClosed: boolean): Promise<boolean>{
             try {
-                await axios.patch(`https://localhost:7148/api/branches/${id}`, {
+                await axios.patch(`${API_URL}/api/branches/${id}`, {
                     isTemporaryClosed: isClosed
                 });
                 const branch = this.rawBranches.find(b => b.id === id);
