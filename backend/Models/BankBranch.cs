@@ -3,13 +3,11 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace BankMap.Api.Models
 {
-    // Основная таблица для карты и фильтров
     public class BankBranch
     {
         [Key]
         public int Id { get; set; }
 
-        // ID из внешнего JSON
         public int ExternalDepartmentId { get; set; }
 
         // department | atm | terminal
@@ -32,7 +30,7 @@ namespace BankMap.Api.Models
         public bool IsTemporaryClosed { get; set; }
         public bool IsRegular { get; set; }
 
-        // Полный JSON отделения (timeTables, phones, services и т.д.)
+        //Full JSON for timetables
         [Column(TypeName = "nvarchar(max)")] 
         public string DataJson { get; set; } = "{}";
 
@@ -40,7 +38,7 @@ namespace BankMap.Api.Models
     }
 
 
-    // DTO для импорта JSON
+    // DTO
     public class DepartmentsImportRootDto
     {
         public List<BranchImportDto> List { get; set; } = new();
