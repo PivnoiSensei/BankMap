@@ -36,12 +36,16 @@ services:
       - "5000:8080"
 
   frontend:
-    build: ./frontend
+    build:
+      context: . #Змінив шлях до кореня проєкту, для отримання .env
+      dockerfile: frontend/Dockerfile
+      args:
+        - VITE_API_URL=${VITE_API_URL}
     container_name: bank-frontend
     depends_on:
       - backend
     ports:
-      - "5173:80"
+      - "5173:80" 
 
 volumes:
   mssql-data:

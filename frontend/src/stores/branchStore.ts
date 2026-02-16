@@ -1,7 +1,8 @@
 import { defineStore } from 'pinia'
 import axios from 'axios'
 const API_URL = import.meta.env.VITE_API_URL || 'http://backend:8080';
-// Полная структура данных из JSON
+
+    // Полная структура данных из JSON
 export interface Break {
     BreakFrom: string;
     BreakTo: string;
