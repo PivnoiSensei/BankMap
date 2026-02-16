@@ -1,10 +1,13 @@
 <script setup lang="ts">
 import SettingsPanel from './SettingsPanel.vue';
 import FiltersPanel from './FiltersPanel.vue';
-import {onMounted, ref, shallowRef, watch, computed } from 'vue';
+import BranchPopup from './BranchPopup.vue';
+
+import { onMounted, ref, shallowRef, watch, computed, createApp } from 'vue';
 import { useRoute } from 'vue-router';
 import maplibregl from 'maplibre-gl';
-import { useBranchStore, type BankMarker, type WorkDay, type CashDepartment } from '@/stores/branchStore';
+
+import { useBranchStore } from '@/stores/branchStore';
 import type { FeatureCollection, Point } from 'geojson';
 import 'maplibre-gl/dist/maplibre-gl.css';
 import '@/assets/map-styles.css';
@@ -28,120 +31,6 @@ const map = shallowRef<maplibregl.Map | null>(null);
 const activePopups = shallowRef<maplibregl.Popup[]>([]);
 const branchStore = useBranchStore();
 const isSourceReady = ref(false);
-
-const createPopupHtml = (branch: BankMarker): string => {
-    const d = branch.details;
-    //Separate timetables for department and cash in department
-    const deptTable = d?.TimeTables?.find(t => t.Workstation === 'department');
-    const cashTable = d?.TimeTables?.find(t => t.Workstation === 'cashDepartment');
-    
-    const workDays = deptTable?.WorkDays || [];
-
-    const today = new Date().getDay(); 
-    const currentDayIndex = today === 0 ? 6 : today - 1;
-
-    const currentDayData = workDays[currentDayIndex];
-    const currentCashDay = cashTable?.WorkDays.find(cd => cd.WorkingDay === currentDayData?.WorkingDay);
-    
-    //Separate CashDeps
-    const cashDeps = d?.CashDepartments;
-    const cashDepsDay = cashDeps?.map(cash => cash?.WorkDays.find(cd => cd.DayOfWeek === currentDayData?.WorkingDay))
-    
-    const daysNames = ["Понеділок", "Вівторок", "Середа", "Четвер", "П'ятниця", "Субота", "Неділя"];
-    const daysOptions = daysNames.map((name, i) => `
-        <div class="popup-day-option ${i === currentDayIndex ? 'selected' : ''}" 
-            data-value="${i}">
-            ${name}
-        </div>
-    `).join('');
-
-    return `
-    <div class="map-popup">
-        <div class="popup-header">
-            <strong class="popup-title">${branch.name.includes(`в м. ${branch.baseCity}`)
-            ? branch.name
-            : `${branch.name} в м. ${branch.baseCity}`}
-            </strong>
-            <div class="popup-day-select custom-select" 
-                data-branch-id="${branch.id}" 
-                data-value="${currentDayIndex}">
-                        
-                    <div class="custom-select-trigger">
-                        ${daysNames[currentDayIndex]}
-                    </div>
-
-                    <div class="custom-select-dropdown">
-                        ${daysOptions}
-                    </div>
-            </div>
-        </div>
-        ${branch.isRegular ? '<div class="popup-body-subtitle regular-container"><img src = "/icon-regular.svg" class = "regular-icon"> Чергове</div>': ''}
-        <div class="popup-body">
-            <div class="popup-body-subtitle">Адреса:</div>
-            <div> ${branch.fullAddress}</div>
-            ${d?.Address?.DetailedAddress ? `<div class="detailed-address">
-            ${d.Address.DetailedAddress.charAt(0).toUpperCase() + d.Address.DetailedAddress.slice(1, d.Address.DetailedAddress.length)}
-            </div>` : ''}
-        </div>
-
-        <div class="popup-body">
-            <div class="popup-body-subtitle">Телефон:</div>
-            <div>0 800 30 70 10</div>
-            <div style="margin-bottom: 4px;">Цілодобово і безкоштовно в межах України</div>
-        </div>
-            <div class="popup-body-subtitle">Графік роботи:</div>
-        ${branch.isTemporaryClosed ? '<h4 class = "popup-title">Тимчасово не працює</h4>' : `
-            <div class="popup-footer" id="popup-content-${branch.id}">
-                ${currentDayData ? renderWorkTime(currentDayData, currentCashDay, cashDepsDay?.filter((day): day is WorkDay => !!day), d?.CashDepartments) : '<i>Графік на сьогодні відсутній</i>'}
-            </div>`
-        }
-
-    </div>
-    `;
-};
-
-const renderWorkTime = (day: WorkDay, cashDay?: WorkDay, cashDepsDay?: WorkDay[], cashDepartment?: CashDepartment[]) => {
-    const breaks = day.Breaks?.length 
-        ? day.Breaks.map(b => `${b.BreakFrom}-${b.BreakTo}`).join(', ') 
-        : '-';
-
-    function renderCashes(cashDepartment:CashDepartment[] | undefined, cashDepsDay: WorkDay[] | undefined){
-        if(!cashDepartment || !cashDepsDay){
-            return ''
-        }else{
-            //Breaks array for each cash dep
-            const cashBreaks = cashDepsDay.map(cash => {
-                return cash.Breaks.map(b => `${b.BreakFrom} - ${b.BreakTo}`).join(', ')
-            })            
-
-            //Create HTML for cash deps description + worktime
-            const cashInfo = cashDepsDay.map((cash, index) => 
-                `
-                <hr/>
-                <div class="cashdeps-container">
-                   <div style="margin-bottom: 4px; color: #000"> ${cashDepartment[index]? `${cashDepartment[index].CashDescription}: ` : ''}</div>
-                   <div class="cashdeps-time"> ${cash ? `${cash.WorkFrom} - ${cash.WorkTo}` : 'не працює'}</div> 
-                </div>
-                <div class="popup-body-subtitle" style="margin-bottom: 4px;">Перерва: <div class="cashdeps-time"> ${cashBreaks[index] ? cashBreaks[index] : '-'}</div> </div>
-                `
-            );
-            const CashInfoJoined = cashInfo.join('')
-            return CashInfoJoined
-        }
-    }
-   
-    const cashInfoHTML = renderCashes(cashDepartment, cashDepsDay);
-    return `
-        <div style="margin-bottom: 4px;">${day.WorkFrom} - ${day.WorkTo}</div>
-        ${breaks !== '-' ? 
-        `
-            <div class="popup-body-subtitle" style="margin-bottom: 4px;">Перерва:</div>
-            <div style="margin-bottom: 4px; color: #000"> ${breaks}</div>
-        `: ''}
-        ${cashDay? `<div style="color: #28a745; margin-bottom: 4px;">Каса у відділенні: ${cashDay ? `${cashDay.WorkFrom} - ${cashDay.WorkTo}` : 'не працює'}</div>` : ''}
-        ${cashInfoHTML !== '' ? `<div class="popup-body-subtitle">Окремі каси:</div> ${cashInfoHTML}`: ''}
-    `;
-};
 
 const zoomToCity = (city: string) => {
     const activeMap = map.value;
@@ -293,23 +182,38 @@ onMounted(async () => {
         const props = pointFeature.properties as MapMarkerProperties;
         const branch = branchStore.rawBranches.find(b => b.id === props.id);
         branchStore.selectedBranch = branch || null;
+
         if (branch && map.value) {
             activePopups.value.forEach(p => p.remove());
             activePopups.value = [];
 
-            const popup = new maplibregl.Popup({ offset: 15, maxWidth: 'none', anchor: 'bottom'})
+            //Mount BranchPopup
+            const container = document.createElement('div');
+
+            const app = createApp(BranchPopup, { branch });
+            app.mount(container);
+
+            const popup = new maplibregl.Popup({
+                offset: 15,
+                maxWidth: 'none',
+                anchor: 'bottom'
+            })
                 .setLngLat([branch.longitude, branch.latitude])
-                .setHTML(createPopupHtml(branch))
+                .setDOMContent(container)
                 .addTo(map.value);
+
+            popup.on('close', () => {
+                app.unmount();
+            });
+
             activePopups.value.push(popup);
 
             m.flyTo({
                 center: [branch.longitude, branch.latitude],
-                padding: { top: 600, bottom: 0, left: 0, right: 0 }, 
+                padding: { top: 600, bottom: 0, left: 0, right: 0 },
                 speed: 0.8,
                 zoom: 14
-            })
-
+            });
         }
     });
 
@@ -319,80 +223,6 @@ onMounted(async () => {
         activePopups.value = [];
     });
 
-    //Days Select listeners
-    mapContainer.value?.addEventListener('click', (event) => {
-    const target = event.target as HTMLElement;
-
-    const select = target.closest('.custom-select') as HTMLElement;
-    if (select && target.classList.contains('custom-select-trigger')) {
-        select.classList.toggle('open');
-        return;
-    }
-
-        const option = target.closest('.popup-day-option') as HTMLElement;
-        if (option) {
-            const select = option.closest('.custom-select') as HTMLElement;
-            if (!select) return;
-
-            const trigger = select.querySelector('.custom-select-trigger') as HTMLElement;
-            const value = option.dataset.value!;
-
-            select.querySelectorAll('.popup-day-option')
-                .forEach(o => o.classList.remove('selected'));
-            option.classList.add('selected');
-
-            trigger.textContent = option.textContent;
-            select.dataset.value = value;
-            select.classList.remove('open');
-
-            const changeEvent = new Event('change', { bubbles: true });
-
-            Object.defineProperty(select, 'value', {
-                value,
-                writable: true
-            });
-
-            select.dispatchEvent(changeEvent);
-        }
-    }); 
-
-    mapContainer.value?.addEventListener('change', (event) => {
-
-        const target = event.target as HTMLElement;
-        
-        if (target && target.classList.contains('popup-day-select')) {
-            const branchId = Number(target.dataset.branchId);
-            let dayIndex: number;
-
-            if (target instanceof HTMLSelectElement) {
-                dayIndex = Number(target.value);
-            } else {
-                dayIndex = Number(target.dataset.value);
-            }
-            
-            const branch = branchStore.rawBranches.find(b => b.id === branchId);
-            const displayDiv = document.getElementById(`popup-content-${branchId}`);
-            
-            if (branch && displayDiv) {
-                const d = branch.details;
-                const deptDays = d?.TimeTables?.find(t => t.Workstation === 'department')?.WorkDays || [];
-                const cashDays = d?.TimeTables?.find(t => t.Workstation === 'cashDepartment')?.WorkDays || [];
-                
-                const selectedDay = deptDays[dayIndex];
-                const selectedCashDay = cashDays.find(cd => cd.WorkingDay === selectedDay?.WorkingDay);
-
-                //Separate CashDeps
-                const cashDeps = d?.CashDepartments;
-                const cashDepsDay = cashDeps?.map(cash => cash?.WorkDays.find(cd => cd.DayOfWeek === selectedDay?.WorkingDay))
-                
-                if (selectedDay) {
-                    displayDiv.innerHTML = renderWorkTime(selectedDay, selectedCashDay, cashDepsDay?.filter((day): day is WorkDay => !!day), d?.CashDepartments);
-                }else{
-                    displayDiv.innerHTML = 'Вихідний';
-                }
-            }
-        }
-    });
     watch(() => branchStore.filterCity,(city) => {
             activePopups.value.forEach(p => p.remove());
             activePopups.value = [];

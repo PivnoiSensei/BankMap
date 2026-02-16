@@ -2,7 +2,7 @@ import { defineStore } from 'pinia'
 import axios from 'axios'
 const API_URL = import.meta.env.VITE_API_URL || 'http://backend:8080';
 
-    // Полная структура данных из JSON
+//Full data structure from parsed JSON from DB 
 export interface Break {
     BreakFrom: string;
     BreakTo: string;
@@ -91,7 +91,6 @@ export const useBranchStore = defineStore('branchStore', {
             try {
                 const { data } = await axios.get<BankMarker[]>(`${API_URL}/api/branches`);
                 
-                // Парсим JSON детали сразу при получении
                 this.rawBranches = data.map(branch => ({
                     ...branch,
                     details: branch.dataJson ? JSON.parse(branch.dataJson) : null
@@ -104,7 +103,7 @@ export const useBranchStore = defineStore('branchStore', {
             }
         },
 
-        // Метод для импорта JSON файла
+        //Import JSON file for test
         async importJson(file: File): Promise<boolean> {
             try {
                 const formData = new FormData();
@@ -133,7 +132,7 @@ export const useBranchStore = defineStore('branchStore', {
                 if (branch) {
                     branch.isTemporaryClosed = isClosed;
                     
-                    // Также обновляем внутри вложенных деталей (для Popup)
+                    //Update details inside Popup
                     if (branch.details) {
                         branch.details!.IsTemporaryClosed = isClosed;
                     }
