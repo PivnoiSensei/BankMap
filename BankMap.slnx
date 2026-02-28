@@ -1,0 +1,9 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="BankMap.Application/BankMap.Application.csproj" Id="1d56e937-c7bf-4b39-adf3-97c21387fc12" />
+    <Project Path="BankMap.Domain/BankMap.Domain.csproj" Id="3e87be7f-ba5e-47ac-9a4d-bf402e8f7898" />
+    <Project Path="BankMap.Infrastructure/BankMap.Infrastructure.csproj" Id="822be6a0-99fd-4982-8ee1-641d99351c33" />
+    <Project Path="BankMap.WebApi/BankMap.WebApi.csproj" Id="35f0055c-8910-4acf-84f3-1dc69d19c3e4" />
+  </Folder>
+  <Project Path="backend/BankMap.csproj" />
+</Solution>
