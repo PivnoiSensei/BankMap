@@ -20,9 +20,7 @@ public class BranchConfiguration : IEntityTypeConfiguration<Branch>
             .HasConversion<string>()
             .IsRequired();
 
-        // =========================
         // Address (OwnsOne)
-        // =========================
 
         builder.OwnsOne(x => x.Address, address =>
         {
@@ -32,16 +30,16 @@ public class BranchConfiguration : IEntityTypeConfiguration<Branch>
             address.Property(a => a.FullAddress)
                 .HasMaxLength(300)
                 .IsRequired();
-
+            address.Property(a => a.DetailedAddress)
+                .HasMaxLength(300)
+                .IsRequired();
             address.Property(a => a.Latitude);
             address.Property(a => a.Longitude);
 
             address.ToTable("BranchAddresses");
         });
 
-        // =========================
         // Phones
-        // =========================
 
         builder.OwnsMany(x => x.Phones, phone =>
         {
@@ -56,9 +54,7 @@ public class BranchConfiguration : IEntityTypeConfiguration<Branch>
             phone.Ignore(p => p.FullNumber);
         });
 
-        // =========================
         // Work Schedules
-        // =========================
 
         builder.OwnsMany(x => x.Schedules, schedule =>
         {
@@ -95,9 +91,7 @@ public class BranchConfiguration : IEntityTypeConfiguration<Branch>
                 });
             });
         });
-        // =========================
         // Cash Desks (каси)
-        // =========================
         builder.OwnsMany(x => x.CashDesks, cash =>
         {
             cash.ToTable("BranchCashDesks");
@@ -120,6 +114,16 @@ public class BranchConfiguration : IEntityTypeConfiguration<Branch>
                     .HasConversion<int>();
                 wd.Property(x => x.From);
                 wd.Property(x => x.To);
+                wd.OwnsMany(wd => wd.Breaks, cb =>
+                {
+                    cb.ToTable("CashDeskBreaks");
+                    cb.WithOwner().HasForeignKey("CashDeskWorkingDayId");
+                    cb.Property<int>("Id");
+                    cb.HasKey("Id");
+
+                    cb.Property(b => b.From);
+                    cb.Property(b => b.To);
+                });
             });
         });
     }

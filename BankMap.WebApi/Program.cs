@@ -1,20 +1,24 @@
 using BankMap.Infrastructure.Data;
-using Microsoft.EntityFrameworkCore;
 using BankMap.Infrastructure.DependencyInjection;
+using BankMap.WebApi;
+using Microsoft.EntityFrameworkCore;
+
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddControllers();
-
-builder.Services.AddOpenApi();
-
-//Create Db context from connection params from appsettings.json with data model from BankBranch.ts
+// Infrastructure
 builder.Services.AddInfrastructure(builder.Configuration);
 
+// Application
+builder.Services.AddApplicationDependencies();
+
+// Controllers + OpenApi
+builder.Services.AddControllers();
+
+// CORS
 var allowedOrigins = builder.Configuration
     .GetSection("AllowedOrigins")
-    .Get<string[]>() ?? [];
+    .Get<string[]>() ?? Array.Empty<string>();
 
-//CORS Setup
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowVueApp",
@@ -25,20 +29,28 @@ builder.Services.AddCors(options =>
 
 var app = builder.Build();
 
+// Middleware
 if (app.Environment.IsDevelopment())
 {
-    app.MapOpenApi();
     app.UseHttpsRedirection();
 }
 
 app.UseCors("AllowVueApp");
-app.UseAuthorization(); 
+app.UseAuthorization();
 app.MapControllers();
 
-using (var scope = app.Services.CreateScope())
+// Apply Migrations
+using var scope = app.Services.CreateScope();
+var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+try
 {
-    var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
     db.Database.Migrate();
+}
+catch (Exception ex)
+{
+    var logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
+    logger.LogError(ex, "Error applying migrations");
+    throw;
 }
 
 app.Run();

@@ -3,6 +3,7 @@ using BankMap.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace BankMap.Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260302151846_Add-Detailed-Address")]
+    partial class AddDetailedAddress
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -143,37 +146,6 @@ namespace BankMap.Infrastructure.Migrations
 
                                     b2.WithOwner()
                                         .HasForeignKey("CashDeskId");
-
-                                    b2.OwnsMany("BankMap.Domain.Entities.Branch+CashDesk+BreakInterval", "Breaks", b3 =>
-                                        {
-                                            b3.Property<int>("Id")
-                                                .ValueGeneratedOnAdd()
-                                                .HasColumnType("int");
-
-                                            SqlServerPropertyBuilderExtensions.UseIdentityColumn(b3.Property<int>("Id"));
-
-                                            b3.Property<int>("CashDeskWorkingDayId")
-                                                .HasColumnType("int");
-
-                                            b3.Property<string>("From")
-                                                .IsRequired()
-                                                .HasColumnType("nvarchar(max)");
-
-                                            b3.Property<string>("To")
-                                                .IsRequired()
-                                                .HasColumnType("nvarchar(max)");
-
-                                            b3.HasKey("Id");
-
-                                            b3.HasIndex("CashDeskWorkingDayId");
-
-                                            b3.ToTable("CashDeskBreaks", (string)null);
-
-                                            b3.WithOwner()
-                                                .HasForeignKey("CashDeskWorkingDayId");
-                                        });
-
-                                    b2.Navigation("Breaks");
                                 });
 
                             b1.Navigation("WorkDays");

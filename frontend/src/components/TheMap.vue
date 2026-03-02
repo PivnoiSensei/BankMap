@@ -36,7 +36,7 @@ const zoomToCity = (city: string) => {
     const activeMap = map.value;
     if (!activeMap || city === 'all') return;
 
-    const cityBranches = branchStore.rawBranches.filter(b => b.baseCity === city);
+    const cityBranches = branchStore.branches.filter(b => b.address.city === city);
     if (!cityBranches.length) return;
 
     activeMap.stop(); 
@@ -45,7 +45,7 @@ const zoomToCity = (city: string) => {
     const bounds = new maplibregl.LngLatBounds();
 
     cityBranches.forEach(b => {
-        bounds.extend([b.longitude, b.latitude]);
+        bounds.extend([b.address.longitude, b.address.latitude]);
     });
 
     activeMap.fitBounds(bounds, {
@@ -75,12 +75,12 @@ const renderMarkers = () => {
             type: 'Feature',
             geometry: { 
                 type: 'Point', 
-                coordinates: [b.longitude, b.latitude] as [number, number] 
+                coordinates: [b.address.longitude, b.address.latitude] as [number, number] 
             },
             properties: { 
                 id: b.id, 
                 name: b.name, 
-                type: b.departmentType, 
+                type: b.type, 
                 isClosed: b.isTemporaryClosed 
             }
         }))
@@ -144,9 +144,9 @@ onMounted(async () => {
                     'case',
                     ['boolean', ['get', 'isClosed'], false], '#6c757d',
                     ['match', ['get', 'type'],
-                        'department', '#007bff',
-                        'atm', '#28a745',
-                        'terminal', '#ffc107',
+                        'Department', '#007bff',
+                        'Atm', '#28a745',
+                        'Terminal', '#ffc107',
                         '#333'
                     ]
                 ],
@@ -180,7 +180,7 @@ onMounted(async () => {
         if (!pointFeature?.properties) return;
 
         const props = pointFeature.properties as MapMarkerProperties;
-        const branch = branchStore.rawBranches.find(b => b.id === props.id);
+        const branch = branchStore.branches.find(b => b.id === props.id);
         branchStore.selectedBranch = branch || null;
 
         if (branch && map.value) {
@@ -198,7 +198,7 @@ onMounted(async () => {
                 maxWidth: 'none',
                 anchor: 'bottom'
             })
-                .setLngLat([branch.longitude, branch.latitude])
+                .setLngLat([branch.address.longitude, branch.address.latitude])
                 .setDOMContent(container)
                 .addTo(map.value);
 
@@ -209,7 +209,7 @@ onMounted(async () => {
             activePopups.value.push(popup);
 
             m.flyTo({
-                center: [branch.longitude, branch.latitude],
+                center: [branch.address.longitude, branch.address.latitude],
                 padding: { top: 600, bottom: 0, left: 0, right: 0 },
                 speed: 0.8,
                 zoom: 14
@@ -232,7 +232,7 @@ onMounted(async () => {
         }
     );
     
-    watch([() => branchStore.filterType, () => branchStore.rawBranches], 
+    watch([() => branchStore.filterType, () => branchStore.branches], 
         () => {
             activePopups.value.forEach(p => p.remove());
             activePopups.value = [];

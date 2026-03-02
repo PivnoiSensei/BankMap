@@ -3,6 +3,7 @@ using BankMap.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace BankMap.Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260302173544_CashDesk-breaks")]
+    partial class CashDeskbreaks
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -144,7 +147,7 @@ namespace BankMap.Infrastructure.Migrations
                                     b2.WithOwner()
                                         .HasForeignKey("CashDeskId");
 
-                                    b2.OwnsMany("BankMap.Domain.Entities.Branch+CashDesk+BreakInterval", "Breaks", b3 =>
+                                    b2.OwnsMany("BankMap.Domain.Entities.Branch+CashDesk+BreakInterval", "CashBreaks", b3 =>
                                         {
                                             b3.Property<int>("Id")
                                                 .ValueGeneratedOnAdd()
@@ -173,7 +176,7 @@ namespace BankMap.Infrastructure.Migrations
                                                 .HasForeignKey("CashDeskWorkingDayId");
                                         });
 
-                                    b2.Navigation("Breaks");
+                                    b2.Navigation("CashBreaks");
                                 });
 
                             b1.Navigation("WorkDays");

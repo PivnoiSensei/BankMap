@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, onBeforeUnmount } from 'vue';
-import type { BankMarker, WorkDay } from '@/stores/branchStore';
+import type { Branch, WorkDay } from '@/stores/branchStore';
 
 const props = defineProps<{
-  branch: BankMarker;
+  branch: Branch;
 }>();
 
 const daysNames = [
@@ -21,8 +21,6 @@ function selectDay(index: number) {
   selectedDayIndex.value = index;
   isSelectOpen.value = false;
 }
-
-const details = computed(() => props.branch.details);
 
 //Сlick outside to close
 function handleClickOutside(e: MouseEvent) {
@@ -43,9 +41,9 @@ onBeforeUnmount(() => {
 //Department days
 const deptDays = computed(
   () =>
-    details.value?.TimeTables
-      ?.find(t => t.Workstation === 'department')
-      ?.WorkDays || []
+    props.branch.schedules
+      ?.find(t => t.workStation === 'department')
+      ?.days || []
 );
 
 const selectedDay = computed<WorkDay | undefined>(
@@ -55,33 +53,33 @@ const selectedDay = computed<WorkDay | undefined>(
 //Cash in department
 const cashDays = computed(
   () =>
-    details.value?.TimeTables
-      ?.find(t => t.Workstation === 'cashDepartment')
-      ?.WorkDays || []
+    props.branch.schedules
+      ?.find(t => t.workStation === 'cashDepartment')
+      ?.days || []
 );
 
 const selectedCashDay = computed<WorkDay | undefined>(() => {
   if (!selectedDay.value) return;
   return cashDays.value.find(
-    d => d.WorkingDay === selectedDay.value!.WorkingDay
+    d => d.dayOfWeek === selectedDay.value!.dayOfWeek
   );
 });
 
 //Separate cash departments
-const cashDeps = computed(
-  () => details.value?.CashDepartments || []
+const cashDesks = computed(
+  () => props.branch.cashDesks || []
 );
 
 const cashDepsForDay = computed(() => {
   if (!selectedDay.value) return [];
 
-  return cashDeps.value.map((dep, index) => {
-    const day = dep.WorkDays.find(
-      d => d.DayOfWeek === selectedDay.value!.WorkingDay
+  return cashDesks.value.map((desk, index) => {
+    const day = desk.workDays.find(
+      d => d.dayOfWeek === selectedDay.value!.dayOfWeek
     );
 
     return {
-      description: dep.CashDescription,
+      description: desk.description,
       day,
       index
     };
@@ -90,10 +88,10 @@ const cashDepsForDay = computed(() => {
 
 //Helpers
 function formatBreaks(day?: WorkDay) {
-  if (!day?.Breaks?.length) return '-';
+  if (!day?.breaks?.length) return '-';
 
-  return day.Breaks
-    .map(b => `${b.BreakFrom}-${b.BreakTo}`)
+  return day.breaks
+    .map(b => `${b.from}-${b.to}`)
     .join(', ');
 }
 </script>
@@ -104,11 +102,7 @@ function formatBreaks(day?: WorkDay) {
     <!-- HEADER -->
     <div class="popup-header">
       <strong class="popup-title">
-        {{
-          branch.name.includes(`в м. ${branch.baseCity}`)
-            ? branch.name
-            : `${branch.name} в м. ${branch.baseCity}`
-        }}
+        {{branch.name}}
       </strong>
 
       <div class="popup-day-select custom-select" :class="{ open: isSelectOpen }">
@@ -146,16 +140,16 @@ function formatBreaks(day?: WorkDay) {
         Адреса:
       </div>
       <div>
-        {{ branch.fullAddress }}
+        {{ branch.address.fullAddress }}
       </div>
       <div
-        v-if="branch.details?.Address?.DetailedAddress"
+        v-if="branch.address.detailedAddress"
         class="detailed-address"
       >
         {{
-          branch.details.Address.DetailedAddress.charAt(0).toUpperCase()
+          branch.address.detailedAddress.charAt(0).toUpperCase()
           +
-          branch.details.Address.DetailedAddress.slice(1)
+          branch.address.detailedAddress.slice(1)
         }}
       </div>
     </div>
@@ -165,7 +159,10 @@ function formatBreaks(day?: WorkDay) {
       <div class="popup-body-subtitle">
         Телефон:
       </div>
-      <div>
+      <div v-if="branch.phones[0]?.fullNumber !== ''">
+        {{branch.phones[0]?.fullNumber}}
+      </div>
+      <div v-if="branch.phones.length == 0">
         0 800 30 70 10
       </div>
       <div style="margin-bottom: 4px;">
@@ -190,7 +187,7 @@ function formatBreaks(day?: WorkDay) {
       <template v-else-if="selectedDay">
         <!-- Department -->
         <div style="margin-bottom: 4px;">
-          {{ selectedDay.WorkFrom }} - {{ selectedDay.WorkTo }}
+          {{ selectedDay.from }} - {{ selectedDay.from }}
         </div>
         <template v-if="formatBreaks(selectedDay) !== '-'">
           <div class="popup-body-subtitle" style="margin-bottom: 4px;">
@@ -204,9 +201,9 @@ function formatBreaks(day?: WorkDay) {
         <!-- Cash in department -->
         <div v-if="selectedCashDay" style="color: #28a745; margin-bottom: 4px;">
           Каса у відділенні:
-          {{ selectedCashDay.WorkFrom }}
+          {{ selectedCashDay.from }}
           -
-          {{ selectedCashDay.WorkTo }}
+          {{ selectedCashDay.to }}
         </div>
 
         <!-- Separate cash departments -->
@@ -224,7 +221,7 @@ function formatBreaks(day?: WorkDay) {
               </div>
               <div class="cashdeps-time">
                 {{ cash.day
-                  ? `${cash.day.WorkFrom} - ${cash.day.WorkTo}`
+                  ? `${cash.day.from} - ${cash.day.to}`
                   : 'не працює' }}
               </div>
             </div>
