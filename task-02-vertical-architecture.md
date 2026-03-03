@@ -270,9 +270,9 @@ public static IServiceCollection AddInfrastructure(this IServiceCollection servi
 - [x] Аудитні поля з автоматичним наповненням
 - [x] Шари: Handler → Service → Manager
 - [x] Result<T> wrapper для відповідей handlers
-- [ ] Базовий контролер з логуванням
-- [ ] MediatR handlers для всіх операцій
-- [ ] Валідатори для Commands
+- [x] Базовий контролер з логуванням
+- [x] MediatR handlers для всіх операцій
+- [x] Валідатори для Commands
 - [ ] Docker Compose працює
 - [ ] Код на GitHub
 
