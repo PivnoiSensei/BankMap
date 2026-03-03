@@ -5,5 +5,4 @@
     <Project Path="BankMap.Infrastructure/BankMap.Infrastructure.csproj" Id="822be6a0-99fd-4982-8ee1-641d99351c33" />
     <Project Path="BankMap.WebApi/BankMap.WebApi.csproj" Id="35f0055c-8910-4acf-84f3-1dc69d19c3e4" />
   </Folder>
-  <Project Path="backend/BankMap.csproj" />
 </Solution>

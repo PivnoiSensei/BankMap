@@ -15,7 +15,7 @@ namespace BankMap.Infrastructure.DependencyInjection
         {
             services.AddDbContext<ApplicationDbContext>(options =>
                 options.UseSqlServer(
-                    configuration.GetConnectionString("DefaultConnection")));
+                    configuration.GetConnectionString("DefaultConnection"), o => o.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery)));
             services.AddScoped<IBranchManager, BranchManager>();
             return services;
         }

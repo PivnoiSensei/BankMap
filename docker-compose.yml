@@ -25,7 +25,9 @@ services:
       retries: 10
 
   backend:
-    build: ./backend
+    build:
+      context: .
+      dockerfile: backend.Dockerfile
     container_name: bank-backend
     depends_on:
       - db
