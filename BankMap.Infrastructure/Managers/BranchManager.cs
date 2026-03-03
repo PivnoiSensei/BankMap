@@ -26,7 +26,7 @@ public class BranchManager : IBranchManager
             .ToListAsync(ct);
     }
 
-    public async Task<int> ImportBranchesAsync(List<Branch> branches, CancellationToken cancellationToken)
+    public async Task<int> ImportBranchesAsync(List<Branch> branches, CancellationToken ct)
     {
         var allBranches = await _dbContext.Branches
             .Include(b => b.Schedules)
@@ -35,14 +35,25 @@ public class BranchManager : IBranchManager
             .Include(b => b.Phones)
             .Include(b => b.CashDesks)
                 .ThenInclude(c => c.WorkDays)
-            .ToListAsync(cancellationToken);
+            .ToListAsync(ct);
 
         _dbContext.Branches.RemoveRange(allBranches);
-        await _dbContext.SaveChangesAsync(cancellationToken);
+        await _dbContext.SaveChangesAsync(ct);
 
-        await _dbContext.Branches.AddRangeAsync(branches, cancellationToken);
-        await _dbContext.SaveChangesAsync(cancellationToken);
+        await _dbContext.Branches.AddRangeAsync(branches, ct);
+        await _dbContext.SaveChangesAsync(ct);
 
         return branches.Count;
+    }
+
+    public async Task<bool> UpdateBranchAsync(int id, bool isTemporaryClosed, CancellationToken ct) {
+        var branch = await _dbContext.Branches.FindAsync(id);
+
+        if (branch == null) return false;
+
+        branch.IsTemporaryClosed = isTemporaryClosed;
+
+        await _dbContext.SaveChangesAsync(ct);
+        return true;
     }
 }

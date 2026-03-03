@@ -1,29 +1,23 @@
-﻿using BankMap.Application.Common;
-using BankMap.Application.Features.Branches.Commands.ImportJson;
+﻿using BankMap.Application.Features.Branches.Commands.ImportJson;
+using BankMap.Application.Features.Branches.Commands.UpdateBranchStatus;
 using BankMap.Application.Features.Branches.Queries.GetAllBranches;
-using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BankMap.WebApi.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class BranchesController : ControllerBase
+    public class BranchesController : ApiControllerBase
     {
-        private readonly IMediator _mediator;
-
-        public BranchesController(IMediator mediator)
-        {
-            _mediator = mediator;
-        }
-
         //GET api/branches
         [HttpGet]
         public async Task<IActionResult> GetAll(CancellationToken ct)
-        {
-            Result<List<BranchDto>> res = await _mediator.Send(new GetAllBranchesQuery(), ct);
-            return res.IsSuccess ? Ok(res.Value) : BadRequest(res.Error);
-        }
+            => await SendAsync(new GetAllBranchesQuery(), ct);
+
+        //PATCH api/branches/${id}
+        [HttpPatch("{id}")]
+        public async Task<IActionResult> UpdateBranchStatus(int id, [FromBody] UpdateBranchStatusBody body, CancellationToken ct)
+            => await SendAsync(new UpdateBranchStatusCommand(id, body.IsTemporaryClosed), ct);
 
         //POST api/branches/import-json
         [HttpPost("import-json")]
@@ -33,9 +27,9 @@ namespace BankMap.WebApi.Controllers
                 return BadRequest("JSON file is required");
 
             using var stream = file.OpenReadStream();
-            var result = await _mediator.Send(new ImportBranchesCommand(stream), ct);
-
-            return result.IsSuccess ? Ok(new { imported = result.Value }) : BadRequest(result.Error);
+            return await SendAsync(new ImportBranchesCommand(stream), ct);
         }
+
+        public record UpdateBranchStatusBody(bool IsTemporaryClosed);
     }
 }

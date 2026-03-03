@@ -1,6 +1,11 @@
 ﻿namespace BankMap.Domain.Entities;
 
-public class Branch
+public abstract class AuditableEntity
+{
+    public DateTime CreatedAt { get; set; }
+    public DateTime? UpdatedAt { get; set; }
+}
+public class Branch : AuditableEntity
 {
     public int Id { get; private set; }
 
@@ -8,9 +13,9 @@ public class Branch
 
     public BranchType Type { get; private set; }
 
-    public bool IsTemporaryClosed { get; private set; }
+    public bool IsTemporaryClosed { get; set; }
 
-    public bool IsRegular { get; private set; }
+    public bool IsRegular { get; init; }
 
     public AddressInfo Address { get; private set; } = null!;
 
@@ -32,7 +37,7 @@ public class Branch
         Address = address;
     }
 
-    //Створені вкладені об'єкти є value objects і не матимуть окремого id
+    //Створені вкладені об'єкти - value objects і не матимуть окремих id
 
     public class AddressInfo
     {

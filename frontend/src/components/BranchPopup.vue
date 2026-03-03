@@ -91,7 +91,7 @@ function formatBreaks(day?: WorkDay) {
   if (!day?.breaks?.length) return '-';
 
   return day.breaks
-    .map(b => `${b.from}-${b.to}`)
+    .map(b => `${b.from} - ${b.to}`)
     .join(', ');
 }
 </script>
@@ -187,7 +187,7 @@ function formatBreaks(day?: WorkDay) {
       <template v-else-if="selectedDay">
         <!-- Department -->
         <div style="margin-bottom: 4px;">
-          {{ selectedDay.from }} - {{ selectedDay.from }}
+          {{ selectedDay.from }} - {{ selectedDay.to }}
         </div>
         <template v-if="formatBreaks(selectedDay) !== '-'">
           <div class="popup-body-subtitle" style="margin-bottom: 4px;">

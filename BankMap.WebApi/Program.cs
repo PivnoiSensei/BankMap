@@ -1,6 +1,6 @@
 using BankMap.Infrastructure.Data;
 using BankMap.Infrastructure.DependencyInjection;
-using BankMap.WebApi;
+using BankMap.Application.DependencyInjection;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -9,7 +9,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddInfrastructure(builder.Configuration);
 
 // Application
-builder.Services.AddApplicationDependencies();
+builder.Services.AddApplication();
 
 // Controllers + OpenApi
 builder.Services.AddControllers();

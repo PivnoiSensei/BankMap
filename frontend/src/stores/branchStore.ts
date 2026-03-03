@@ -104,26 +104,26 @@ export const useBranchStore = defineStore('branchStore', {
             }
         },
 
-        // async updateBranchStatus(id: number, isClosed: boolean): Promise<boolean>{
-        //     try {
-        //         await axios.patch(`${API_URL}/api/branches/${id}`, {
-        //             isTemporaryClosed: isClosed
-        //         });
-        //         const branch = this.rawBranches.find(b => b.id === id);
+        async updateBranchStatus(id: number, isClosed: boolean): Promise<boolean>{
+            try {
+                await axios.patch(`${API_URL}/api/branches/${id}`, {
+                    isTemporaryClosed: isClosed
+                });
+                const branch = this.branches.find(b => b.id === id);
 
-        //         if (branch) {
-        //             branch.isTemporaryClosed = isClosed;
+                if (branch) {
+                    branch.isTemporaryClosed = isClosed;
                     
-        //             //Update details inside Popup
-        //             if (branch.details) {
-        //                 branch.details!.IsTemporaryClosed = isClosed;
-        //             }
-        //         }
-        //         return true;
-        //     } catch (error) {
-        //           console.error("Error updating branch status:", error);
-        //           return false;
-        //     }
-        // }
+                    //Update details inside Popup
+                    if (branch) {
+                        branch.isTemporaryClosed = isClosed;
+                    }
+                }
+                return true;
+            } catch (error) {
+                  console.error("Error updating branch status:", error);
+                  return false;
+            }
+        }
     }
 });
