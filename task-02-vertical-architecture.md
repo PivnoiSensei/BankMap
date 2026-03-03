@@ -265,11 +265,11 @@ public static IServiceCollection AddInfrastructure(this IServiceCollection servi
 
 ## Критерії виконання
 
-- [ ] Solution з 4 проектами (WebApi, Application, Domain, Infrastructure)
-- [ ] Доменні моделі замість DataJson (Branch, Address, WorkSchedule, тощо)
+- [✅] Solution з 4 проектами (WebApi, Application, Domain, Infrastructure)
+- [✅] Доменні моделі замість DataJson (Branch, Address, WorkSchedule, тощо)
 - [ ] Аудитні поля з автоматичним наповненням
-- [ ] Шари: Handler → Service → Manager
-- [ ] Result<T> wrapper для відповідей handlers
+- [✅] Шари: Handler → Service → Manager
+- [✅] Result<T> wrapper для відповідей handlers
 - [ ] Базовий контролер з логуванням
 - [ ] MediatR handlers для всіх операцій
 - [ ] Валідатори для Commands
