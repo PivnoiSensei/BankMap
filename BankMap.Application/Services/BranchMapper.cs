@@ -40,7 +40,6 @@ public class BranchMapper : IBranchMapper
                     IsRegular = dto.IsRegular
                 };
 
-                // 5. Маппинг Schedules
                 if (dto.Schedules != null)
                 {
                     foreach (var sDto in dto.Schedules)
@@ -61,14 +60,12 @@ public class BranchMapper : IBranchMapper
                     }
                 }
 
-                // 6. Маппинг Телефонов
                 if (dto.Phones != null)
                 {
                     foreach (var pDto in dto.Phones)
                         branch.Phones.Add(new Branch.ContactPhone(pDto.OperatorCode, pDto.Number));
                 }
 
-                // 7. Маппинг Касс
                 if (dto.CashDesks != null)
                 {
                     foreach (var cDto in dto.CashDesks)

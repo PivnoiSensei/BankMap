@@ -37,7 +37,7 @@ public class Branch : AuditableEntity
         Address = address;
     }
 
-    //Створені вкладені об'єкти - value objects і не матимуть окремих id
+    //Entities are value objects without additional ids
 
     public class AddressInfo
     {

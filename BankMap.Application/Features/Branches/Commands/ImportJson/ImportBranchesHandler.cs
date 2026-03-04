@@ -8,7 +8,7 @@ namespace BankMap.Application.Features.Branches.Commands.ImportJson;
 public class ImportBranchesHandler : IRequestHandler<ImportBranchesCommand, Result<int>>
 {
     private readonly IBranchManager _branchManager;
-    private readonly IBranchMapper _branchMapper;
+    private readonly IBranchMapper _branchMapper; //Branch mapper service for JSON deserialization
 
     public ImportBranchesHandler(IBranchManager branchManager, IBranchMapper branchMapper)
     {

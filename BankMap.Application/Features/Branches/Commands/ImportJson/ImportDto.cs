@@ -2,7 +2,7 @@
 
 namespace BankMap.Application.Features.Branches.Commands.ImportJson;
 
-// 1. Добавляем корневой объект, который видит ключ "list" в JSON
+// Root object "list"
 public record DepartmentsImportRootDto(
     [property: JsonPropertyName("list")] List<ImportDto> List
 );
@@ -26,7 +26,6 @@ public record AddressDto(
     GeoLocationDto GeoLocation
 );
 
-// Добавляем этот объект, так как в JSON координаты внутри geoLocation
 public record GeoLocationDto(
     double Lat,
     [property: JsonPropertyName("long")] double Long

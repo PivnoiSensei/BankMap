@@ -9,7 +9,7 @@ namespace BankMap.Application.Common.Behaviors{
         private readonly IEnumerable<IValidator<TRequest>> _validators;
 
         public ValidationBehavior(IEnumerable<IValidator<TRequest>> validators) => _validators = validators;
-
+        //Universal validator handler
         public async Task<TResponse> Handle(TRequest request, RequestHandlerDelegate<TResponse> next, CancellationToken ct)
         {
             if (!_validators.Any()) return await next();
@@ -18,7 +18,7 @@ namespace BankMap.Application.Common.Behaviors{
             var validationResults = await Task.WhenAll(_validators.Select(v => v.ValidateAsync(context, ct)));
             var failures = validationResults.SelectMany(r => r.Errors).Where(f => f != null).ToList();
 
-            if (failures.Count != 0)
+            if (failures.Count != 0) //Build validator response 
             {
                 var errorMsg = string.Join(", ", failures.Select(f => f.ErrorMessage));
                 return (TResponse)typeof(TResponse)
