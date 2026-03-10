@@ -11,8 +11,10 @@ namespace BankMap.WebApi.Controllers
         protected ISender Mediator => HttpContext.RequestServices.GetRequiredService<ISender>();
         protected ILogger<ApiControllerBase> Logger => HttpContext.RequestServices.GetRequiredService<ILogger<ApiControllerBase>>();
 
-        protected async Task<IActionResult> SendAsync<T>(IRequest<Result<T>> req, CancellationToken ct)
+        protected async Task<IActionResult> SendAsync<T>(IRequest<Result<T>> req)
         {
+            var ct = HttpContext.RequestAborted;
+
             var requestedName = req.GetType().Name;
             Logger.LogInformation("Sending request: {RequestName}", requestedName);
 

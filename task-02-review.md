@@ -13,10 +13,10 @@
    ```
    Можна додати інтерфейс для `Result` з методом `static abstract TSelf Failure(string error)`. А потім замість рефлексії використати цей метод `TResponse.Failure(errorMsg)` попередньо додавши constraint `TResponse : IResultFailure<TResponse>`.
 - [x] 9. `BranchMapper` повинен бути в окремій вкладці, а не в Services.
-10. Не треба створювати query/command в контроллері, за виключенням порожніх. У цьому методі command повинен бути в аргументах методу з атрибутом `[FromBody]`
+- [x] 10. Не треба створювати query/command в контроллері, за виключенням порожніх. У цьому методі command повинен бути в аргументах методу з атрибутом `[FromBody]`
    ```csharp
    public async Task<IActionResult> UpdateBranchStatus(int id, [FromBody] UpdateBranchStatusBody body, CancellationToken ct)
       => await SendAsync(new UpdateBranchStatusCommand(id, body.IsTemporaryClosed), ct);
    ```
-11. Також не треба додавати `CancellationToken` в методи контроллеру. Його можна дістати в `ApiControllerBase` з `HttpContext.RequestAborted`.
+- [x] 11. Також не треба додавати `CancellationToken` в методи контроллеру. Його можна дістати в `ApiControllerBase` з `HttpContext.RequestAborted`.
 - [x] 12. Проекти повинні лежати в папці `src/`, як вказано в завданні.

@@ -11,23 +11,27 @@ namespace BankMap.WebApi.Controllers
     {
         //GET api/branches
         [HttpGet]
-        public async Task<IActionResult> GetAll(CancellationToken ct)
-            => await SendAsync(new GetAllBranchesQuery(), ct);
+        public async Task<IActionResult> GetAll()
+            => await SendAsync(new GetAllBranchesQuery());
 
         //PATCH api/branches/${id}
         [HttpPatch("{id}")]
-        public async Task<IActionResult> UpdateBranchStatus(int id, [FromBody] UpdateBranchStatusBody body, CancellationToken ct)
-            => await SendAsync(new UpdateBranchStatusCommand(id, body.IsTemporaryClosed), ct);
+        public async Task<IActionResult> UpdateBranchStatus(int id, [FromBody] UpdateBranchStatusCommand command)
+        {
+            command = command with { Id =  id };
+            return await SendAsync(command);
+        }
+           
 
         //POST api/branches/import-json
         [HttpPost("import-json")]
-        public async Task<IActionResult> ImportJson(IFormFile file, CancellationToken ct)
+        public async Task<IActionResult> ImportJson(IFormFile file)
         {
             if (file == null || file.Length == 0)
                 return BadRequest("JSON file is required");
 
             using var stream = file.OpenReadStream();
-            return await SendAsync(new ImportBranchesCommand(stream), ct);
+            return await SendAsync(new ImportBranchesCommand(stream));
         }
 
         public record UpdateBranchStatusBody(bool IsTemporaryClosed);
