@@ -4,11 +4,12 @@ using MediatR;
 namespace BankMap.Application.Common.Behaviors{
     public class ValidationBehavior<TRequest, TResponse> : IPipelineBehavior<TRequest, TResponse>
         where TRequest : IRequest<TResponse>
+        where TResponse : IResultFailure<TResponse>
     {
         private readonly IEnumerable<IValidator<TRequest>> _validators;
 
         public ValidationBehavior(IEnumerable<IValidator<TRequest>> validators) => _validators = validators;
-        //Universal validator handler
+        //Universal validation handler
         public async Task<TResponse> Handle(TRequest request, RequestHandlerDelegate<TResponse> next, CancellationToken ct)
         {
             if (!_validators.Any()) return await next(ct);
@@ -20,9 +21,8 @@ namespace BankMap.Application.Common.Behaviors{
             if (failures.Count != 0) //Build validator response 
             {
                 var errorMsg = string.Join(", ", failures.Select(f => f.ErrorMessage));
-                //Без рефлексії, повертаємо Result<T> з помилками, які отримали від валідаторів
-                //через новий метод прописаний у Result.cs
-                return (TResponse)(object)Result<object>.FailureStatic(errorMsg); 
+                //Без рефлексії, повертаємо Result<T> з помилками через інтерфейс IResultFailure
+                return TResponse.Failure(errorMsg);
             }
 
             return await next(ct);

@@ -9,7 +9,7 @@ namespace BankMap.Application.Features.Branches.Queries.GetAllBranches
     public class GetAllBranchesHandler : IRequestHandler<GetAllBranchesQuery, Result<List<BranchDto>>>
     {
         private readonly IBranchService _branchService;
-        private readonly IBranchMapper _branchMapper; //Маппер для Branch -> BranchDto
+        private readonly IBranchMapper _branchMapper; // Branch to BranchDto mapper
         public GetAllBranchesHandler(IBranchService branchService, IBranchMapper branchMapper)
         {
             _branchService = branchService;
