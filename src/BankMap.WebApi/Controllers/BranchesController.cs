@@ -16,10 +16,11 @@ namespace BankMap.WebApi.Controllers
 
         //PATCH api/branches/${id}
         [HttpPatch("{id}")]
-        public async Task<IActionResult> UpdateBranchStatus(int id, [FromBody] UpdateBranchStatusCommand command)
+        public async Task<IActionResult> UpdateBranchStatus(int id, [FromBody] UpdateBranchStatusBody body)
         {
-            command = command with { Id =  id };
-            return await SendAsync(command);
+            return await SendAsync(
+                new UpdateBranchStatusCommand(id, body.IsTemporaryClosed)
+            );
         }
            
 
