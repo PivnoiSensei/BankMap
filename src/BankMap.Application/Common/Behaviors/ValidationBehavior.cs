@@ -21,7 +21,6 @@ namespace BankMap.Application.Common.Behaviors{
             if (failures.Count != 0) //Build validator response 
             {
                 var errorMsg = string.Join(", ", failures.Select(f => f.ErrorMessage));
-                //Без рефлексії, повертаємо Result<T> з помилками через інтерфейс IResultFailure
                 return TResponse.Failure(errorMsg);
             }
 

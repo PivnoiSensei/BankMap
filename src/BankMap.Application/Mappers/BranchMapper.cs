@@ -20,7 +20,7 @@ public class BranchMapper : IBranchMapper
             var root = await JsonSerializer.DeserializeAsync<DepartmentsImportRootDto>(
                 jsonStream, _jsonOptions, ct);
 
-            if (root?.List == null || !root.List.Any())
+            if (root?.List == null || root.List.Count == 0)
                 return Result<List<Branch>>.Failure("Invalid JSON structure");
 
             var branches = root.List
@@ -161,7 +161,6 @@ public class BranchMapper : IBranchMapper
         return workDay;
     }
 
-    //Interface method
     public List<BranchDto> MapToDto(List<Branch> branches)
     {
         return branches.Select(MapBranchToDto).ToList();
