@@ -106,7 +106,8 @@ export const useBranchStore = defineStore('branchStore', {
 
         async updateBranchStatus(id: number, isClosed: boolean): Promise<boolean>{
             try {
-                await axios.patch(`${API_URL}/api/branches/${id}`, {
+                await axios.patch(`${API_URL}/api/branches`, {
+                    id: id,
                     isTemporaryClosed: isClosed
                 });
                 const branch = this.branches.find(b => b.id === id);

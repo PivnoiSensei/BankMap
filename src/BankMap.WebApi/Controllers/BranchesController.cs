@@ -15,14 +15,10 @@ namespace BankMap.WebApi.Controllers
             => await SendAsync(new GetAllBranchesQuery());
 
         //PATCH api/branches/${id}
-        [HttpPatch("{id}")]
-        public async Task<IActionResult> UpdateBranchStatus(int id, [FromBody] UpdateBranchStatusBody body)
-        {
-            return await SendAsync(
-                new UpdateBranchStatusCommand(id, body.IsTemporaryClosed)
-            );
-        }
-           
+        [HttpPatch]
+        public async Task<IActionResult> UpdateBranchStatus([FromBody] UpdateBranchStatusCommand command)
+          => await SendAsync(command);
+
 
         //POST api/branches/import-json
         [HttpPost("import-json")]
